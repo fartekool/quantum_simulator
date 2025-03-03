@@ -1,11 +1,10 @@
-#include <iostream>
+﻿#include <iostream>
 #include <cmath>
 #include "rational.h"
 #include "matrix.h"
 #include <complex>
 #include <numbers>
 #include <vector>
-
 using namespace std;
 
 const double Pi = 3.14159265358979323846;
@@ -22,6 +21,10 @@ matrix<complex<double>> Z_({
     {1, 0},
     {0, -1}
     });
+matrix<complex<double>> Y_({
+    {0, complex<double>(0, -1)},
+    {complex<double>(0, 1), 0}
+    });
 matrix<complex<double>> H_({
     {sqrt(2)/2, sqrt(2) / 2},
     {sqrt(2) / 2, -sqrt(2) / 2}
@@ -32,9 +35,15 @@ matrix<complex<double>> CNOT01_({
          {0, 0, 0, 1},
          {0, 0, 1, 0}
          });
-
+matrix<complex<double>> SWAP({
+         {1, 0, 0, 0},
+         {0, 0, 1, 0},
+         {0, 1, 0, 0},
+         {0, 0, 0, 1}
+    });
 class Q_Sim
 {
+public:
     std::vector<complex<double>> Vector;
 
     matrix<complex<double>> Create_Gate(matrix<complex<double>> M, int n)
@@ -94,24 +103,46 @@ public:
             });
         Vector = Create_Gate(p, n) * Vector;
     }
-    void CNOT(int a, int b) // ?
+    matrix<complex<double>> CNOT(int control_qbit, int target_qbit)
     {   
-        if (a == 0 && b == 1)
+
+        int N = 1 << (int)log2(Vector.size());
+        matrix<complex<double>> CNOT(N, N);
+        for (int i = 0; i < N; ++i) {
+            int j = i;
+            if ((i & (1 << ((int)log2(Vector.size()) - control_qbit -1 ))) != 0) { // Если управляющий бит = 1
+                j ^= (1 << ((int)log2(Vector.size()) - target_qbit - 1)); // Флип целевого бита
+            }
+            CNOT.numbers[i][j] = 1;
+        }
+        return CNOT;
+        /*if (a == 0 && b == 0)
+            X(0);
+        else if (a == 1 && b == 1)
+            X(1);
+        else if (a == 0 && b == 1)
+        {
             matrix<complex<double>> cnot({
                 {1, 0, 0, 0},
                 {0, 1, 0, 0},
                 {0, 0, 0, 1},
                 {0, 0, 1, 0}
                 });
+            Vector = cnot * Vector;
+        }
         else if (a == 1 && b == 0)
+        {
             matrix<complex<double>> cnot({
                 { 1, 0, 0, 0 },
                 { 0, 0, 0, 1 },
                 { 0, 0, 1, 0 },
-                { 0, 1, 0, 0 } 
+                { 0, 1, 0, 0 }
                 });
+            Vector = cnot * Vector;
+        }
         else
-            throw 0;
+            throw 0; 
+*/
 
     }
     matrix<complex<double>> CZ(int a, int b) // ?
@@ -136,7 +167,7 @@ public:
     Q_Sim()
     {
         Vector.push_back(complex<double>(1, 0));
-        Vector.push_back(complex<double>(0, 0));
+        Vector.push_back(complex<double>(0, 0));    
     }
     Q_Sim(vector<complex<double>> a) : Vector(a)
     {   
@@ -169,12 +200,52 @@ ostream& operator<<(ostream& os, const complex<double>& a)
         os << '(' << a.real() << " + " << a.imag() << "i)";
     return os;
 }
+
+void Dense_Coding(Q_Sim& qsim, int alice, int bob) {
+    // 1. Подготовка запутанного состояния Белла |Φ+> = (|00> + |11>)/√2
+    qsim.H(alice);
+    qsim.CNOT(alice, bob);
+
+    cout << qsim << endl;
+    // 2. Алиса кодирует свой кубит, применяя X и Z по необходимости
+    if (alice)
+        qsim.X(alice);  // Симулируем случайную информацию (замени на нужную)
+    if (bob)
+        qsim.Z(alice);
+
+    cout << qsim << endl;
+    // 3. Алиса измеряет свой кубит (неявно, она передает классические биты Бобу)
+
+    // 4. Боб декодирует сообщение
+    qsim.CNOT(alice, bob);
+    qsim.H(alice);
+
+    cout << qsim << endl;
+}
+
 int main()
 {   
-    Q_Sim Q(vector<complex<double>>({1, 0, 0, 0}));
+    Q_Sim q(vector<complex<double>>{1, 0, 0, 0, 0, 0, 0, 0});
 
-    Q.Ry(Pi / 2, 0);
-    cout << Q;
+
+    for (int i = 0; i < 3; ++i)
+    {   
+        cout << endl;
+        for (int j = 0; j < 3; ++j)
+        {   
+            if (i != j)
+            {   
+                cout << "CNOT" << i << j << endl;
+                cout << q.CNOT(i, j) << endl;
+            }
+        }
+            
+    }
+    
+    /*Q.Ry(Pi / 2, 0);
+    Q.X(0);
+    Q[0] = 1;
+    std::cout << Q;*/
    // matrix<complex<double>> Ry({ {sqrt(2)/2, -sqrt(2) / 2}, {sqrt(2) / 2, sqrt(2) / 2}});
    // matrix<double> I({ {1, 0}, {0, 1} });
    // matrix<double> X({ {0, 1}, {1, 0} });
@@ -257,8 +328,7 @@ int main()
 
    // for (auto i : vec3)
    //     std::cout << i << std::endl;
-
-
+    
     return 0;
 }
 
