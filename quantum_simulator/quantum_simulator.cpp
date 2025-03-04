@@ -190,21 +190,18 @@ ostream& operator<<(ostream& os, const complex<double>& a)
 }
 
 void Dense_Coding(Q_Sim& qsim, int alice, int bob) {
-    // 1. Подготовка запутанного состояния Белла |Φ+> = (|00> + |11>)/√2
+
     qsim.H(alice);
     qsim.CNOT(alice, bob);
 
     cout << qsim << endl;
-    // 2. Алиса кодирует свой кубит, применяя X и Z по необходимости
+
     if (alice)
-        qsim.X(alice);  // Симулируем случайную информацию (замени на нужную)
+        qsim.X(alice);
     if (bob)
         qsim.Z(alice);
 
     cout << qsim << endl;
-    // 3. Алиса измеряет свой кубит (неявно, она передает классические биты Бобу)
-
-    // 4. Боб декодирует сообщение
     qsim.CNOT(alice, bob);
     qsim.H(alice);
 
