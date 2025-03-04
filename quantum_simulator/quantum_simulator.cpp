@@ -13,37 +13,41 @@ matrix<complex<double>> I({
     {1, 0},
     {0, 1}
     });
+
 matrix<complex<double>> X_({
     {0, 1},
     {1, 0}
     });
+
 matrix<complex<double>> Z_({
     {1, 0},
     {0, -1}
     });
+
 matrix<complex<double>> Y_({
     {0, complex<double>(0, -1)},
     {complex<double>(0, 1), 0}
     });
+
 matrix<complex<double>> H_({
     {sqrt(2)/2, sqrt(2) / 2},
     {sqrt(2) / 2, -sqrt(2) / 2}
     });
-matrix<complex<double>> CNOT01_({
-         {1, 0, 0, 0},
-         {0, 1, 0, 0},
-         {0, 0, 0, 1},
-         {0, 0, 1, 0}
-         });
+
 matrix<complex<double>> SWAP({
          {1, 0, 0, 0},
          {0, 0, 1, 0},
          {0, 1, 0, 0},
          {0, 0, 0, 1}
     });
+
+/// <summary>
+/// /////////////////////////////////////////////////////////////////////////////////////////////////
+/// </summary>
 class Q_Sim
 {
-public:
+private:
+
     std::vector<complex<double>> Vector;
 
     matrix<complex<double>> Create_Gate(matrix<complex<double>> M, int n)
@@ -61,13 +65,28 @@ public:
 
         return M;
     }
+
 public:
-    
+
+    int count_of_qubits;
+
+    Q_Sim(): count_of_qubits(1)
+    {
+        Vector.push_back(complex<double>(1, 0));
+        Vector.push_back(complex<double>(0, 0));
+    }
+
+    Q_Sim(vector<complex<double>> a) : Vector(a)
+    {
+        if (!(log2(a.size()) == int(log2(a.size()))))
+            throw 0;
+        count_of_qubits = (int)log2(Vector.size());
+    }
+
     complex<double>& operator[](int i)
     {
         return Vector[i];
     }
-
 
     void Ry(double alpha, int n)
     {
@@ -91,10 +110,16 @@ public:
         Vector = Create_Gate(Z_, n) * Vector;
     }
 
+    void Y(int n)
+    {
+        Vector = Create_Gate(Y_, n) * Vector;
+    }
+
     void H(int n)
     {
         Vector = Create_Gate(H_, n) * Vector;
     }
+
     void P(double alpha, int n)
     {
         matrix<complex<double>> p({
@@ -103,48 +128,22 @@ public:
             });
         Vector = Create_Gate(p, n) * Vector;
     }
-    matrix<complex<double>> CNOT(int control_qbit, int target_qbit)
+
+    void CNOT(int control_qbit, int target_qbit)
     {   
 
-        int N = 1 << (int)log2(Vector.size());
+        int N = 1 << count_of_qubits;
         matrix<complex<double>> CNOT(N, N);
         for (int i = 0; i < N; ++i) {
             int j = i;
-            if ((i & (1 << ((int)log2(Vector.size()) - control_qbit -1 ))) != 0) { // Если управляющий бит = 1
-                j ^= (1 << ((int)log2(Vector.size()) - target_qbit - 1)); // Флип целевого бита
+            if ((i & (1 << (count_of_qubits - control_qbit - 1))) != 0) { // Если управляющий бит = 1
+                j ^= (1 << (count_of_qubits - target_qbit - 1)); // Флип целевого бита
             }
             CNOT.numbers[i][j] = 1;
         }
-        return CNOT;
-        /*if (a == 0 && b == 0)
-            X(0);
-        else if (a == 1 && b == 1)
-            X(1);
-        else if (a == 0 && b == 1)
-        {
-            matrix<complex<double>> cnot({
-                {1, 0, 0, 0},
-                {0, 1, 0, 0},
-                {0, 0, 0, 1},
-                {0, 0, 1, 0}
-                });
-            Vector = cnot * Vector;
-        }
-        else if (a == 1 && b == 0)
-        {
-            matrix<complex<double>> cnot({
-                { 1, 0, 0, 0 },
-                { 0, 0, 0, 1 },
-                { 0, 0, 1, 0 },
-                { 0, 1, 0, 0 }
-                });
-            Vector = cnot * Vector;
-        }
-        else
-            throw 0; 
-*/
-
+        Vector = CNOT * Vector;
     }
+
     matrix<complex<double>> CZ(int a, int b) // ?
     {
         if (a == 0 && b == 1)
@@ -164,18 +163,7 @@ public:
         else
             throw 0;
     }
-    Q_Sim()
-    {
-        Vector.push_back(complex<double>(1, 0));
-        Vector.push_back(complex<double>(0, 0));    
-    }
-    Q_Sim(vector<complex<double>> a) : Vector(a)
-    {   
-        if (!(log2(a.size()) == int(log2(a.size()))))
-            throw 0;
-
-        
-    }
+    
 
     friend ostream& operator<<(ostream& os, const Q_Sim& q)
     {
@@ -225,23 +213,18 @@ void Dense_Coding(Q_Sim& qsim, int alice, int bob) {
 
 int main()
 {   
-    Q_Sim q(vector<complex<double>>{1, 0, 0, 0, 0, 0, 0, 0});
+    Q_Sim q(vector<complex<double>>{0, 0,0,0,0,0,0,0,1,0,0,0,0,0,0,0});
 
-
-    for (int i = 0; i < 3; ++i)
-    {   
-        cout << endl;
-        for (int j = 0; j < 3; ++j)
-        {   
-            if (i != j)
-            {   
-                cout << "CNOT" << i << j << endl;
-                cout << q.CNOT(i, j) << endl;
-            }
-        }
-            
-    }
+    q.H(2);
+    q.CNOT(2, 3);
+    q.CNOT(1, 2);
+    q.H(2);
+    q.CNOT(0, 2);
+    q.H(2);
+    q.CNOT(2, 3);
+    q.H(2);
     
+    cout << q;
     /*Q.Ry(Pi / 2, 0);
     Q.X(0);
     Q[0] = 1;

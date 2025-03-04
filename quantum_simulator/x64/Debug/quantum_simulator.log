@@ -1,6 +1,6 @@
 ﻿  quantum_simulator.cpp
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.38.33130\include\numbers(11): warning STL4038: The contents of <numbers> are available only with C++20 or later.
-C:\Users\alext\source\repos\quantum_simulator\quantum_simulator\quantum_simulator.cpp(52,26): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\alext\source\repos\quantum_simulator\quantum_simulator\quantum_simulator.cpp(56,26): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
 C:\Users\alext\source\repos\quantum_simulator\quantum_simulator\matrix.h(31,69): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
   (compiling source file 'quantum_simulator.cpp')
   C:\Users\alext\source\repos\quantum_simulator\quantum_simulator\matrix.h(31,69):
