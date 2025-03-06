@@ -1,4 +1,5 @@
 ﻿  quantum_simulator.cpp
+<<<<<<< HEAD
 C:\Users\alext\source\repos\quantum_simulator\quantum_simulator\binary_adder.h(10,13): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
   (compiling source file 'quantum_simulator.cpp')
   
@@ -28,3 +29,11 @@ C:\Users\alext\source\repos\quantum_simulator\quantum_simulator\matrix.h(31,89):
   (compiling source file 'quantum_simulator.cpp')
   
   quantum_simulator.vcxproj -> C:\Users\alext\source\repos\quantum_simulator\x64\Debug\quantum_simulator.exe
+=======
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.40.33807\include\numbers(11): warning STL4038: The contents of <numbers> are available only with C++20 or later.
+C:\Users\levon\Desktop\qsim\quantum_simulator\quantum_simulator\matrix.h(31,69): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\levon\Desktop\qsim\quantum_simulator\quantum_simulator\matrix.h(31,89): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+  rational.cpp
+  Generating Code...
+  quantum_simulator.vcxproj -> C:\Users\levon\Desktop\qsim\quantum_simulator\x64\Debug\quantum_simulator.exe
+>>>>>>> 103a4502ead048e2572fd6249601a8ebc2a55284
