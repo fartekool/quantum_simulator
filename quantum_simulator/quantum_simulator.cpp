@@ -50,25 +50,20 @@ private:
 
     std::vector<complex<double>> Vector;
 
+    int count_of_qubits;
+
     matrix<complex<double>> Create_Gate(matrix<complex<double>> M, int n)
     {   
-
-        int count_matrix = log2(Vector.size());
-
-
         for (int i = 0; i < n; ++i)
         {
-            M = (I && M);
+            M = (M && I);
         }
-        for (int j = n + 1; j < count_matrix; ++j)
-            M = M && I;
+        for (int j = n + 1; j < count_of_qubits; ++j)
+            M = (I && M);
 
         return M;
     }
-
 public:
-
-    int count_of_qubits;
 
     Q_Sim(): count_of_qubits(1)
     {
@@ -94,10 +89,15 @@ public:
             {cos(alpha/2), -sin(alpha/2)},
             {sin(alpha / 2), cos(alpha/2)}
             });
-        
-        
         Vector = Create_Gate(ry, n) * Vector;
-        
+    }
+    void Rz(double alpha, int n)
+    {
+        matrix<complex<double>> rz({
+            {complex<double>(cos(-alpha/2), sin(-alpha/2)), 0},
+            {0, complex<double>(cos(alpha / 2), sin(alpha / 2))}
+            });
+        Vector = Create_Gate(rz, n) * Vector;
     }
 
     void X(int n)
@@ -130,40 +130,21 @@ public:
     }
 
     void CNOT(int control_qbit, int target_qbit)
-    {   
-
+    {
         int N = 1 << count_of_qubits;
         matrix<complex<double>> CNOT(N, N);
+
         for (int i = 0; i < N; ++i) {
             int j = i;
-            if ((i & (1 << (count_of_qubits - control_qbit - 1))) != 0) { // Если управляющий бит = 1
-                j ^= (1 << (count_of_qubits - target_qbit - 1)); // Флип целевого бита
+            if ((i & (1 << control_qbit)) != 0) {
+                j ^= (1 << target_qbit);
             }
+
             CNOT.numbers[i][j] = 1;
         }
+
         Vector = CNOT * Vector;
     }
-
-    matrix<complex<double>> CZ(int a, int b) // ?
-    {
-        if (a == 0 && b == 1)
-            return matrix<complex<double>>({
-                {1, 0, 0, 0},
-                {0, 1, 0, 0},
-                {0, 0, 1, 0},
-                {0, 0, 0, -1}
-                });
-        else if (a == 1 && b == 0)
-            return matrix<complex<double>>({
-                { 1, 0, 0, 0 },
-                { 0, 1, 0, 0 },
-                { 0, 0, 1, 0 },
-                { 0, 0, 0, -1 }
-                });
-        else
-            throw 0;
-    }
-    
 
     friend ostream& operator<<(ostream& os, const Q_Sim& q)
     {
@@ -189,29 +170,11 @@ ostream& operator<<(ostream& os, const complex<double>& a)
     return os;
 }
 
-void Dense_Coding(Q_Sim& qsim, int alice, int bob) {
-
-    qsim.H(alice);
-    qsim.CNOT(alice, bob);
-
-    cout << qsim << endl;
-
-    if (alice)
-        qsim.X(alice);
-    if (bob)
-        qsim.Z(alice);
-
-    cout << qsim << endl;
-    qsim.CNOT(alice, bob);
-    qsim.H(alice);
-
-    cout << qsim << endl;
-}
 
 int main()
 {   
-    Q_Sim q(vector<complex<double>>{0, 0,0,0,0,0,0,0,1,0,0,0,0,0,0,0});
-
+    //Dense Coding
+    Q_Sim q(vector<complex<double>>{1,2,3,4,0,0,0,0,0,0,0,0,0,0,0,0});
     q.H(2);
     q.CNOT(2, 3);
     q.CNOT(1, 2);
@@ -222,93 +185,8 @@ int main()
     q.H(2);
     
     cout << q;
-    /*Q.Ry(Pi / 2, 0);
-    Q.X(0);
-    Q[0] = 1;
-    std::cout << Q;*/
-   // matrix<complex<double>> Ry({ {sqrt(2)/2, -sqrt(2) / 2}, {sqrt(2) / 2, sqrt(2) / 2}});
-   // matrix<double> I({ {1, 0}, {0, 1} });
-   // matrix<double> X({ {0, 1}, {1, 0} });
-   // matrix<complex<double>> CNOT01({
-   //     {1, 0, 0, 0},
-   //     {0, 1, 0, 0},
-   //     {0, 0, 0, 1},
-   //     {0, 0, 1, 0}
-   //     });
-   // matrix<complex<double>> CNOT10({
-   //     {1, 0, 0, 0},
-   //     {0, 0, 0, 1},
-   //     {0, 0, 1, 0},
-   //     {0, 1, 0, 0}
-   //     });
-   // matrix<complex<double>> SWAP = CNOT01 * CNOT10 * CNOT01;
-   // /*std::vector<double> vec1 = {1, 2, 3, 4};
-   // vec1 = (I && X) * vec1;*/
-   // //vec = SWAP * vec;
-   // //for (auto i : vec)
-   // //    std::cout << i << std::endl;    
-   // ///*std::cout << (I && I && X) << std::endl;*/
 
-   // /*std::vector<complex<double>> vec = { 1, 0, 0, 0 };
-   // vec = (Ry && I) * vec;
-
-
-   // vec = (X && I) * vec;
-
-   // vec = CNOT01 * vec;
-
-   // vec = (X && I) * vec;
-
-   // for (auto i : vec)
-   //     std::cout << i << std::endl;
-
-   // matrix<complex<double>> RzPi_2({
-   //     {complex<double>(sqrt(2)/2, -sqrt(2)/2), 0},
-   //     {0, complex<double>(sqrt(2) / 2, sqrt(2)/ 2)}
-   //     });*/
-
-   ///* vector<complex<double>> vec{ 1, 0, 0, 0 };
-
-   // vec = (ry && i) * vec;
-
-   // vec = cnot01 * vec;
-
-   // vec = (rzpi_2 && i) * vec;
-
-   // for (auto i : vec)
-   //     std::cout << i << std::endl;*/
-
-   // /*vector<complex<double>> vec{ 0, 1, 2, 3, 4, 5, 6, 7 };
-
-   // vec = (I && I && X) * vec;
-
-   // for (auto i : vec)
-   //     std::cout << i << std::endl;*/
-   // matrix <double> A = I && I&& X;
-   // matrix <double> B = I && X && I;
-   // matrix <double> C = X && I && I;
-
-   // vector<double> vec1{ 0, 1, 2, 3, 4, 5, 6, 7 };
-   // vector<double> vec2{ 0, 1, 2, 3, 4, 5, 6, 7 };
-   // vector<double> vec3{ 0, 1, 2, 3, 4, 5, 6, 7 };
-
-   // vec1 = A * vec1;
-   // 
-   // for (auto i : vec1)
-   //     std::cout << i << std::endl;
-
-   // cout << endl << endl;
-   // vec2 = B * vec2;
-
-   // for (auto i : vec2)
-   //     std::cout << i << std::endl;
-
-   // cout << endl << endl;
-   // vec3 = C * vec3;
-
-   // for (auto i : vec3)
-   //     std::cout << i << std::endl;
-    
+    //
     return 0;
 }
 
