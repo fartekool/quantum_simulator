@@ -131,6 +131,7 @@
     <ClCompile Include="rational.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="binary_adder.h" />
     <ClInclude Include="list.h" />
     <ClInclude Include="matrix.h" />
     <ClInclude Include="rational.h" />

@@ -2,6 +2,7 @@
 #include <cmath>
 #include "rational.h"
 #include "matrix.h"
+#include "binary_adder.h"
 #include <complex>
 #include <numbers>
 #include <vector>
@@ -171,10 +172,11 @@ ostream& operator<<(ostream& os, const complex<double>& a)
 }
 
 
+
 int main()
 {   
     //Dense Coding
-    Q_Sim q(vector<complex<double>>{1,2,3,4,0,0,0,0,0,0,0,0,0,0,0,0});
+    /*Q_Sim q(vector<complex<double>>{1,2,3,4,0,0,0,0,0,0,0,0,0,0,0,0});
     q.H(2);
     q.CNOT(2, 3);
     q.CNOT(1, 2);
@@ -184,9 +186,16 @@ int main()
     q.CNOT(2, 3);
     q.H(2);
     
-    cout << q;
+    cout << q;*/
 
     //
+
+
+    string sum = Adder(Adder("10", "10"), Adder("1101", "1100"));
+
+    cout << sum;
+        
+
     return 0;
 }
 
