@@ -1,42 +1,41 @@
-﻿#include <iostream>
+﻿#pragma once
+#include <iostream>
 #include <cmath>
-#include "rational.h"
 #include "matrix.h"
-#include "binary_adder.h"
 #include <complex>
 #include <numbers>
 #include <vector>
+#include <algorithm>
 using namespace std;
 
 const double Pi = 3.14159265358979323846;
 
-//tutu
-matrix<complex<double>> I({
+const matrix<complex<double>> I({
     {1, 0},
     {0, 1}
     });
 
-matrix<complex<double>> X_({
+const matrix<complex<double>> X_({
     {0, 1},
     {1, 0}
     });
 
-matrix<complex<double>> Z_({
+const matrix<complex<double>> Z_({
     {1, 0},
     {0, -1}
     });
 
-matrix<complex<double>> Y_({
+const matrix<complex<double>> Y_({
     {0, complex<double>(0, -1)},
     {complex<double>(0, 1), 0}
     });
 
-matrix<complex<double>> H_({
+const matrix<complex<double>> H_({
     {sqrt(2)/2, sqrt(2) / 2},
     {sqrt(2) / 2, -sqrt(2) / 2}
     });
 
-matrix<complex<double>> SWAP({
+const matrix<complex<double>> SWAP({
          {1, 0, 0, 0},
          {0, 0, 1, 0},
          {0, 1, 0, 0},
@@ -50,7 +49,7 @@ class Q_Sim
 {
 private:
 
-    std::vector<complex<double>> Vector;
+    std::vector<complex<double>> vector_state_;
 
     int count_of_qubits;
 
@@ -69,29 +68,39 @@ public:
 
     Q_Sim(): count_of_qubits(1)
     {
-        Vector.push_back(complex<double>(1, 0));
-        Vector.push_back(complex<double>(0, 0));
+        vector_state_.push_back(complex<double>(1, 0));
+        vector_state_.push_back(complex<double>(0, 0));
     }
 
-    Q_Sim(vector<complex<double>> a) : Vector(a)
+    Q_Sim(vector<complex<double>> a) : vector_state_(a)
     {
         if (!(log2(a.size()) == int(log2(a.size()))))
             throw 0;
-        count_of_qubits = (int)log2(Vector.size());
+        count_of_qubits = (int)log2(vector_state_.size());
     }
 
     complex<double>& operator[](int i)
     {
-        return Vector[i];
+        return vector_state_[i];
     }
-
-    void Ry(double alpha, int n)
+    // Матричный Ry
+    /*void Ry(double alpha, int n)
     {
         matrix<complex<double>> ry({
             {cos(alpha/2), -sin(alpha/2)},
             {sin(alpha / 2), cos(alpha/2)}
             });
-        Vector = Create_Gate(ry, n) * Vector;
+        vector_state_ = Create_Gate(ry, n) * vector_state_;
+    }*/
+
+    // Битовый R
+    void Ry(double alpha, int n)
+    {
+        matrix<complex<double>> ry({
+            {cos(alpha / 2), -sin(alpha / 2)},
+            {sin(alpha / 2), cos(alpha / 2)}
+            });
+        vector_state_ = Create_Gate(ry, n) * vector_state_;
     }
     void Rz(double alpha, int n)
     {
@@ -99,36 +108,38 @@ public:
             {complex<double>(cos(-alpha/2), sin(-alpha/2)), 0},
             {0, complex<double>(cos(alpha / 2), sin(alpha / 2))}
             });
-        Vector = Create_Gate(rz, n) * Vector;
+        vector_state_ = Create_Gate(rz, n) * vector_state_;
     }
 
     void X(int n)
     {
-        Vector = Create_Gate(X_, n) * Vector;
+        vector_state_ = Create_Gate(X_, n) * vector_state_;
     }
 
+   
     void Z(int n)
     {
-        Vector = Create_Gate(Z_, n) * Vector;
+        //vector_state_ = Create_Gate(Z_, n) * vector_state_;
+
     }
 
     void Y(int n)
     {
-        Vector = Create_Gate(Y_, n) * Vector;
+        vector_state_ = Create_Gate(Y_, n) * vector_state_;
     }
 
     void H(int n)
     {
-        Vector = Create_Gate(H_, n) * Vector;
+        vector_state_ = Create_Gate(H_, n) * vector_state_;
     }
-
+    
     void P(double alpha, int n)
     {
         matrix<complex<double>> p({
             {1, 0},
             {0, complex<double>(cos(alpha), sin(alpha))}
             });
-        Vector = Create_Gate(p, n) * Vector;
+        vector_state_ = Create_Gate(p, n) * vector_state_;
     }
 
     void CNOT(int control_qbit, int target_qbit)
@@ -145,12 +156,13 @@ public:
             CNOT.numbers[i][j] = 1;
         }
 
-        Vector = CNOT * Vector;
+        vector_state_ = CNOT * vector_state_;
+        cout << CNOT;
     }
 
     friend ostream& operator<<(ostream& os, const Q_Sim& q)
     {
-        for (const complex<double>& a : q.Vector)
+        for (const complex<double>& a : q.vector_state_)
         {
             if (a.imag() == 0)
                 os << a.real() << endl;
@@ -163,40 +175,6 @@ public:
 };
 
 
-ostream& operator<<(ostream& os, const complex<double>& a)
-{   
-    if (a.imag() == 0)
-        os << a.real();
-    else
-        os << '(' << a.real() << " + " << a.imag() << "i)";
-    return os;
-}
 
 
-
-int main()
-{   
-    //Dense Coding
-    /*Q_Sim q(vector<complex<double>>{1,2,3,4,0,0,0,0,0,0,0,0,0,0,0,0});
-    q.H(2);
-    q.CNOT(2, 3);
-    q.CNOT(1, 2);
-    q.H(2);
-    q.CNOT(0, 2);
-    q.H(2);
-    q.CNOT(2, 3);
-    q.H(2);
-    
-    cout << q;*/
-
-    //
-
-
-    string sum = Adder(Adder("10", "10"), Adder("1101", "1100"));
-
-    cout << sum;
-        
-
-    return 0;
-}
 

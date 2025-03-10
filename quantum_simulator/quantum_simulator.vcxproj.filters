@@ -15,24 +15,21 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="quantum_simulator.cpp">
+    <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="rational.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="quantum_simulator.h">
+      <Filter>Header Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="matrix.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="rational.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="list.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="binary_adder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="quantum_simulatorV2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

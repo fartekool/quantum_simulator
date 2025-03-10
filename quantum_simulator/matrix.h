@@ -1,8 +1,11 @@
 #pragma once
 #include <vector>
 #include <iostream>
-#include "rational.h"
+#include <complex>
+using namespace std;
 template <class T>
+
+
 class matrix
 {
 public:
@@ -161,7 +164,7 @@ public:
 		}
 		return result;
 	}
-	matrix operator&&(const matrix& A)
+	matrix operator&&(const matrix& A) const
 	{
 		matrix answer(m * A.m, n * A.n);
 		for (int i = 0; i < m; ++i)
@@ -200,3 +203,19 @@ public:
 		return os;
 	}
 };
+
+//vector<complex<double>> operator&&(const vector<complex<double>>& a, const vector<complex<double>>& b)
+//{
+//	vector<complex<double>> result;
+//	for (int j = 0; j < a.size(); ++j) {
+//		for (int i = 0; i < b.size(); ++i) {
+//			if ((a[j] != complex<double>(0, 0)) && (b[i] != complex<double>(0, 0))) {
+//				result.push_back(a[j] * b[i]);
+//			}
+//			else {
+//				result.push_back(complex<double>(0, 0));
+//			}
+//		}
+//	}
+//	return result;
+//}
