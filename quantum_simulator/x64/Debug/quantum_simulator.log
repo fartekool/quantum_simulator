@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿  quantum_simulator.cpp
 C:\Users\alext\source\repos\quantum_simulator\quantum_simulator\binary_adder.h(10,13): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
   (compiling source file 'quantum_simulator.cpp')
@@ -30,3 +31,7 @@ C:\Users\alext\source\repos\quantum_simulator\quantum_simulator\matrix.h(31,89):
   rational.cpp
   Generating Code...
   quantum_simulator.vcxproj -> C:\Users\alext\source\repos\quantum_simulator\x64\Debug\quantum_simulator.exe
+=======
+﻿  main.cpp
+  quantum_simulator.vcxproj -> C:\Users\levon\Desktop\qsim\quantum_simulator\x64\Debug\quantum_simulator.exe
+>>>>>>> 63dfa0ddcfcf6dc5e44739db5263e6f710ecb691

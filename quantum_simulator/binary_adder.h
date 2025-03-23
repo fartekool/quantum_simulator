@@ -49,8 +49,8 @@ string Adder(string num1, string num2)
 
 	bool carry = 0;
 
-	size_t i;
-	for (i = 0; i < n; ++i)
+
+	for (int i = 0; i < n; ++i)
 	{
 		bool sum_of_bits = A[i] ^ B[i] ^ carry;
 		carry = (A[i] & B[i]) | (carry & (A[i] ^ B[i]));
