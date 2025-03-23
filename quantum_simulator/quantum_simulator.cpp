@@ -192,7 +192,7 @@ int main()
     //
 
 
-    string sum = Adder(Adder("10", "10"), Adder("1101", "1100"));
+    string sum = Adder("11010010", "101000101011");
 
     cout << sum;
         
