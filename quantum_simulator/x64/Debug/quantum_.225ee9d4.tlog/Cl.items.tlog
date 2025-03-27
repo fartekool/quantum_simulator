@@ -1,7 +1,2 @@
-<<<<<<< HEAD
-C:\Users\alext\source\repos\quantum_simulator\quantum_simulator\quantum_simulator.cpp;C:\Users\alext\source\repos\quantum_simulator\quantum_simulator\x64\Debug\quantum_simulator.obj
-C:\Users\alext\source\repos\quantum_simulator\quantum_simulator\rational.cpp;C:\Users\alext\source\repos\quantum_simulator\quantum_simulator\x64\Debug\rational.obj
-=======
-C:\Users\levon\Desktop\qsim\quantum_simulator\quantum_simulator\main.cpp;C:\Users\levon\Desktop\qsim\quantum_simulator\quantum_simulator\x64\Debug\main.obj
-C:\Users\levon\Desktop\qsim\quantum_simulator\quantum_simulator\quantum_simulator.h;C:\Users\levon\Desktop\qsim\quantum_simulator\quantum_simulator\x64\Debug\quantum_simulator.obj
->>>>>>> 63dfa0ddcfcf6dc5e44739db5263e6f710ecb691
+C:\Users\alext\source\repos\quantum_simulator\quantum_simulator\main.cpp;C:\Users\alext\source\repos\quantum_simulator\quantum_simulator\x64\Debug\main.obj
+C:\Users\alext\source\repos\quantum_simulator\quantum_simulator\quantum_simulator.h;C:\Users\alext\source\repos\quantum_simulator\quantum_simulator\x64\Debug\quantum_simulator.obj

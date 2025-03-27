@@ -4,6 +4,21 @@
 using namespace std;
 
 
+template<class T>
+vector<T> operator&&(const vector<T>& a, const vector<T>& b)
+{
+    vector<T> result(a.size() * b.size());
+    for (int i = 0; i < a.size(); ++i)
+    {
+        for (int j = 0; j < b.size(); ++j)
+        {
+            result[i*b.size() + j] = a[i] * b[j];
+        }
+    }
+    return result;
+}
+
+
 
 
 int main()
@@ -24,24 +39,18 @@ int main()
     //
 
 
-    /*string sum = Adder(Adder("10", "10"), Adder("1101", "1100"));
+    
 
-    cout << sum;*/
+    
 
-    /*vector<complex<double>> A{ 1, 0, 0 };
-    vector<complex<double>> B{ 2, 3, 0 };
+    vector<complex<double>> A{ 0, 1 }; // A = |1>
+    vector<complex<double>> B{ 0, 1 }; // B = |1>
+    vector<complex<double>> Cin{ 0, 1 }; // Cin = |1>
+    vector<complex<double>> Cout{ 1, 0 }; // Cout = |0>
 
-    vector<complex<double>> C = A && B;
-
-    for (auto i : C)
-        cout << i << ' ';*/
-    Q_Sim q(vector<complex<double>>{0.8, 0.6});
-    vector<complex<double>> A =  q.Measure(100);
-
-
-    for (auto i : A)
-        cout << i << endl;
-    cout << endl;
-
+    vector<complex<double>> system = A && B && Cin && Cout;
+    Q_Sim q(system);
+    q.QuantumFullAdder(3, 2, 1, 0);
+    cout << q;
     return 0;
 }

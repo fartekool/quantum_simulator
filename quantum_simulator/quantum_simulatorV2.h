@@ -147,7 +147,7 @@ public:
         vector_state_ = result;
     }
 
-    void T(int controlQubit1, int controlQubit2, int targetQubit)
+    void Toffoli(int controlQubit1, int controlQubit2, int targetQubit)
     {
 
         int size = static_cast<int>(vector_state_.size());
@@ -217,5 +217,20 @@ public:
     complex<double>& operator[](int i)
     {
         return vector_state_[i];
+    }
+
+
+    void QuantumFullAdder(int A, int B, int Cin, int Cout)
+    {   
+        Toffoli(A, B, Cout);
+        CNOT(A, B);
+        Toffoli(B, Cin, Cout);
+        CNOT(B, Cin);
+        CNOT(A, B);
+
+        // A -> A
+        // B -> B
+        // Cin -> Sum
+        // Cout -> Cout
     }
 };

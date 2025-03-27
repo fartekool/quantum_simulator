@@ -160,7 +160,7 @@ public:
         cout << CNOT;
     }
 
-    friend ostream& operator<<(ostream& os, const Q_Sim& q)
+    /*friend ostream& operator<<(ostream& os, const Q_Sim& q)
     {
         for (const complex<double>& a : q.vector_state_)
         {
@@ -170,7 +170,7 @@ public:
                 os << '(' << a.real() << " + " << a.imag() << "i)" << endl;
         }
         return os;
-    }
+    }*/
     
 };
 
