@@ -3,8 +3,8 @@
 #include <complex>
 #include <cmath>
 #include <random>
-
-
+#include <bitset>
+#include <algorithm>
 
 
 using namespace std;
@@ -72,12 +72,22 @@ public:
             throw 0;
         count_of_qubits = (int)log2(vector_state_.size());
     }
-    Q_Sim(int size)
+    Q_Sim(int size): count_of_qubits((int)log2(size))
     {
         vector_state_.push_back(1);
         for (int i = 1; i < size; ++i)
             vector_state_.push_back(0);
     }
+    Q_Sim(const string& qubits): count_of_qubits(qubits.length())
+    {
+        std::bitset<32> bitset(qubits);
+        for (int i = 0; i < bitset.to_ulong(); ++i)
+            vector_state_.push_back(complex<double>(0, 0));
+        vector_state_.push_back(complex<double>(1, 0));
+        for (int i = bitset.to_ulong() + 1; i < pow(2, count_of_qubits); ++i)
+            vector_state_.push_back(complex<double>(0, 0));
+    }
+
     void H(int n)
     {
         U(H_, n);
@@ -232,5 +242,30 @@ public:
         // B -> B
         // Cin -> Sum
         // Cout -> Cout
+    }
+    void QuantumAdder(int length) // 87 654 3210
+    {   
+        int n = 3 * length + 1;
+
+        if (count_of_qubits != n)
+            return;
+
+        for (int i = 0; i < length; ++i)
+            QuantumFullAdder(n - length + i, n - 2*length + i, i, i+1);
+    }
+
+    string get_system_state()
+    {
+        int i;
+        for (i = 0; i < vector_state_.size(); ++i)
+        {
+            if (vector_state_[i] == complex<double>(1, 0))
+                break;
+        }
+        bitset<32> bin = i;
+        string result = bin.to_string<char, std::char_traits<char>, std::allocator<char>>();
+
+        return result.substr(result.length() - count_of_qubits, count_of_qubits);
+        
     }
 };

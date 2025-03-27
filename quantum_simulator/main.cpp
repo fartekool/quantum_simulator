@@ -43,14 +43,9 @@ int main()
 
     
 
-    vector<complex<double>> A{ 0, 1 }; // A = |1>
-    vector<complex<double>> B{ 0, 1 }; // B = |1>
-    vector<complex<double>> Cin{ 0, 1 }; // Cin = |1>
-    vector<complex<double>> Cout{ 1, 0 }; // Cout = |0>
+    Q_Sim q("1000000100000");
 
-    vector<complex<double>> system = A && B && Cin && Cout;
-    Q_Sim q(system);
-    q.QuantumFullAdder(3, 2, 1, 0);
-    cout << q;
+    q.QuantumAdder(4);
+    cout << q.get_system_state();
     return 0;
 }
