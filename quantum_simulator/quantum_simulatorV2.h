@@ -209,7 +209,7 @@ public:
         vector<complex<double>> result1(vector_state_.size(), complex<double>(0, 0));
         for (int i = 0; i < n; ++i)
         {
-            result[To_Measure()]++;
+            result[To_Measure()]++; 
         }
         int max_index = 0;
         int max = -1;
@@ -223,6 +223,55 @@ public:
         }
         result1[max_index] = complex<double>(1, 0);
         return result1;
+    }
+
+    Q_Sim Measure(const vector<int>& id_qubits, int n = 1000)
+    {
+        vector<complex<double>> prob((int)pow(2, id_qubits.size()), complex<double>(0, 0));
+        vector<int> result(prob.size(), 0);
+
+        for (int i = 0; i < vector_state_.size(); ++i)
+        {
+            int pos = 0;
+            for (int j = 0; j < id_qubits.size(); ++j)
+            {     
+                if ((i >> id_qubits[j]) & 1)
+                    pos += pow(2, j);
+            }
+            prob[pos] += norm(vector_state_[i]);
+        }
+
+        for (int i = 0; i < prob.size(); ++i)
+            prob[i] = sqrt(prob[i]);
+        Q_Sim a(prob);
+
+        for (int i = 0; i < n; ++i)
+        {
+            result[a.To_Measure()]++;
+        }
+
+        int max_index = 0;
+        int max = -1;
+        for (int i = 0; i < result.size(); ++i)
+        {
+            if (result[i] > max)
+            {
+                max_index = i;
+                max = result[i];
+            }
+        }
+        vector<complex<double>> c(vector_state_.size(), complex<double>(0, 0));
+        for (int i = 0; i < c.size(); ++i)
+        {
+            bool flag = true;
+            for (int j = 0; j < id_qubits.size(); ++j)
+            {
+                flag = flag && (((i >> id_qubits[j]) & 1) == ((max_index >> j) & 1));
+            }
+            if (flag)
+                c[i] = vector_state_[i] / a[max_index];
+        }
+        return Q_Sim(c);
     }
     complex<double>& operator[](int i)
     {
