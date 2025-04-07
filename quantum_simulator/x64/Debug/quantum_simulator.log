@@ -1,4 +1,8 @@
 ﻿  main.cpp
-C:\Users\levon\Desktop\qsim\quantum_simulator\quantum_simulator\quantum_simulatorV2.h(81,49): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\levon\Desktop\qsim\quantum_simulator\quantum_simulator\quantum_simulatorV2.h(84,27): warning C4018: '<': signed/unsigned mismatch
-  quantum_simulator.vcxproj -> C:\Users\levon\Desktop\qsim\quantum_simulator\x64\Debug\quantum_simulator.exe
+C:\Users\alext\source\repos\quantum_simulator\quantum_simulator\quantum_simulatorV2.h(81,49): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+  (compiling source file 'main.cpp')
+  
+C:\Users\alext\source\repos\quantum_simulator\quantum_simulator\quantum_simulatorV2.h(84,27): warning C4018: '<': signed/unsigned mismatch
+  (compiling source file 'main.cpp')
+  
+  quantum_simulator.vcxproj -> C:\Users\alext\source\repos\quantum_simulator\x64\Debug\quantum_simulator.exe

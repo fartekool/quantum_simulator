@@ -43,9 +43,11 @@ int main()
 
     
 
-    Q_Sim q("1000000100000");
+    Q_Sim q("1100");
 
-    q.QuantumAdder(4);
+    q.QuantumAdder();
+
+
     cout << q.get_system_state();
     return 0;
 }

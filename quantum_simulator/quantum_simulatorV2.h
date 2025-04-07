@@ -243,15 +243,15 @@ public:
         // Cin -> Sum
         // Cout -> Cout
     }
-    void QuantumAdder(int length) // 87 654 3210
+    void QuantumAdder() // count_of_qubits = 3*n + 1 (n - first number, n - second number, n+1 - result)
     {   
-        int n = 3 * length + 1;
-
-        if (count_of_qubits != n)
+        if (count_of_qubits % 3 != 1)
             return;
+        
+        int length = count_of_qubits / 3;
 
         for (int i = 0; i < length; ++i)
-            QuantumFullAdder(n - length + i, n - 2*length + i, i, i+1);
+            QuantumFullAdder(count_of_qubits - length + i, count_of_qubits - 2*length + i, i, i+1);
     }
 
     string get_system_state()
