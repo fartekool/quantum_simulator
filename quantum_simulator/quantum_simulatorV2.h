@@ -5,9 +5,13 @@
 #include <random>
 #include <bitset>
 #include <algorithm>
+#include <numbers>
 
 
 using namespace std;
+
+const double Pi = 3.14159265358979323846;
+
 
 double Generation(double a, double b) {
     std::random_device rd;
@@ -317,4 +321,115 @@ public:
         return result.substr(result.length() - count_of_qubits, count_of_qubits);
         
     }
+
+    
+    void QFT() {
+        int n = count_of_qubits;
+        for (int i = 0; i < n; ++i) {
+            H(i);
+            // Controlled-Phase гейты
+            for (int j = i + 1; j < n; ++j) {
+                double phase = 2 * Pi / pow(2, j - i + 1);
+                CPhase(j, i, phase); // Используем свою функцию controlled_phase
+            }
+        }
+
+        // Обратный порядок кубитов (swap)
+        for (int i = 0; i < n / 2; ++i) {
+            SWAP(i, n - i - 1); // Используем свою функцию swap
+        }
+    }
+    void IQFT() {
+        int n = count_of_qubits;
+
+        // 1. Обратный порядок кубитов (если QFT его делало)
+        for (int i = 0; i < n / 2; ++i) {
+            SWAP(i, n - i - 1);
+        }
+
+        // 2. Controlled-Phase гейты (в обратном порядке и комплексно сопряженные фазы)
+        for (int i = n - 1; i >= 0; --i) {
+            for (int j = n - 1; j > i; --j) {
+                double phase = -2 * Pi / pow(2, j - i + 1); // Отрицательная фаза
+                CPhase(j, i, phase);
+            }
+
+            // 3. Гейт Адамара
+            H(i);
+        }
+    }
+
+    void QFT_Range(int start, int n) {
+        // QFT, применяемое к диапазону кубитов
+        for (int i = 0; i < n; ++i) {
+            H(start + i);
+            for (int j = i + 1; j < n; ++j) {
+                double phase = 2 * Pi / pow(2, j - i + 1);
+                CPhase(start + j, start + i, phase);
+            }
+        }
+        for (int i = 0; i < n / 2; ++i) {
+            SWAP(start + i, start + n - i - 1);
+        }
+    }
+
+    void IQFT_Range(int start, int n) {
+        // IQFT, применяемое к диапазону кубитов
+        for (int i = 0; i < n / 2; ++i) {
+            SWAP(start + i, start + n - i - 1);
+        }
+        for (int i = n - 1; i >= 0; --i) {
+            for (int j = n - 1; j > i; --j) {
+                double phase = -2 * Pi / pow(2, j - i + 1); // Отрицательная фаза
+                CPhase(start + j, start + i, phase);
+            }
+
+            // 3. Гейт Адамара
+            H(start + i);
+        }
+    }
+
+    void quantum_addition(int a_start, int b_start, int n) {
+        // a_start - индекс первого кубита, представляющего число 'a'
+        // b_start - индекс первого кубита, представляющего число 'b'
+        // n - количество кубитов, используемых для представления каждого числа
+
+          // 1. Применяем QFT к 'b'
+        QFT_Range(b_start, n);
+
+        // 2. Применяем контролируемые фазовые сдвиги
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < n; ++j) {
+                double phase = Pi * pow(2, i - j - n);
+                CPhase(a_start + i, b_start + j, phase);
+            }
+        }
+
+        // 3. Применяем IQFT к 'b'
+        IQFT_Range(b_start, n);
+    }
+
+    void CPhase(int controlQubit, int targetQubit, double phase) {
+        int size = static_cast<int>(vector_state_.size());
+        for (int i = 0; i < size; ++i) {
+            // Проверяем, установлен ли управляющий кубит в |1⟩
+            if ((i >> controlQubit) & 1) {
+                // Применяем фазовый сдвиг к целевому кубиту
+                vector_state_[i] *= complex<double>(cos(phase), sin(phase));
+            }
+        }
+    }
+
+    void SWAP(int qubit1, int qubit2) {
+        int size = static_cast<int>(vector_state_.size());
+        for (int i = 0; i < size; ++i) {
+            // Проверяем, нужно ли менять местами амплитуды
+            if (((i >> qubit1) & 1) != ((i >> qubit2) & 1)) {
+                int newIndex = i ^ (1 << qubit1) ^ (1 << qubit2);
+                std::swap(vector_state_[i], vector_state_[newIndex]);
+            }
+        }
+    }
+
+
 };

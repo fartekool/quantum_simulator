@@ -39,7 +39,12 @@ int main()
     //
 
 
-    Q_Sim q(vector<complex<double>>{0.3, -0.6, -0.1, -0.7, 0, 0.1, -0.2, 0});
-    cout << q.Measure({2, 1, 0}, 10000);
+    //Q_Sim q(vector<complex<double>>{0.3, -0.6, -0.1, -0.7, 0, 0.1, -0.2, 0});
+
+    Q_Sim q("111");
+
+
+    q.QFT();
+    cout << q;
     return 0;
 }
