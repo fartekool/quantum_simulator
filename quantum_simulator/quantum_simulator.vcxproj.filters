@@ -32,5 +32,8 @@
     <ClInclude Include="quantum_simulatorV2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="q_error.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

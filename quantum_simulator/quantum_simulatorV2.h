@@ -2,6 +2,7 @@
 #include <vector>
 #include <complex>
 #include <cmath>
+#include <widemath.h>
 #include <random>
 #include <bitset>
 #include <algorithm>
@@ -11,7 +12,7 @@
 using namespace std;
 
 const double Pi = 3.14159265358979323846;
-
+const double Pi_ = 3.14;
 
 double Generation(double a, double b) {
     std::random_device rd;
@@ -283,6 +284,99 @@ public:
     }
 
 
+    //Q_Sim Measure(const vector<int>& id_qubits, int n = 1000)
+    //{
+    //    int num_measured_qubits = id_qubits.size();
+    //    int num_possible_states = (int)pow(2, num_measured_qubits);
+
+    //    vector<int> counts(num_possible_states, 0); // Подсчитываем результаты измерений
+
+    //    // Выполняем n измерений
+    //    for (int k = 0; k < n; ++k) {
+    //        // Создаем копию состояния для каждого измерения (чтобы не изменять исходное)
+    //        Q_Sim temp_sim = *this; // Копируем текущий объект Q_Sim
+
+    //        // Выполняем одно измерение на копии
+    //        int measured_state = temp_sim.MeasureOneShot(id_qubits); // Используем вспомогательную функцию
+
+    //        if (measured_state != -1) {
+    //            counts[measured_state]++; // Увеличиваем счетчик для этого результата
+    //        }
+    //    }
+
+    //    // Находим наиболее часто измеренное состояние
+    //    int most_frequent_state = 0;
+    //    for (int i = 1; i < num_possible_states; ++i) {
+    //        if (counts[i] > counts[most_frequent_state]) {
+    //            most_frequent_state = i;
+    //        }
+    //    }
+
+    //    // Создаем состояние, соответствующее наиболее часто измеренному результату
+    //    vector<complex<double>> collapsed_state(vector_state_.size(), complex<double>(0, 0));
+    //    for (int i = 0; i < vector_state_.size(); ++i) {
+    //        bool flag = true;
+    //        for (int j = 0; j < num_measured_qubits; ++j) {
+    //            flag = flag && (((i >> id_qubits[j]) & 1) == ((most_frequent_state >> j) & 1));
+    //        }
+    //        if (flag) {
+    //            collapsed_state[i] = vector_state_[i];
+    //        }
+    //    }
+
+    //    //// Нормируем состояние
+    //    //double collapse_norm = 0.0;
+    //    //for (int i = 0; i < vector_state_.size(); ++i) {
+    //    //    collapse_norm += norm(collapsed_state[i]);
+    //    //}
+
+    //    //if (collapse_norm > 0.0) {
+    //    //    for (int i = 0; i < vector_state_.size(); ++i) {
+    //    //        collapsed_state[i] /= sqrt(collapse_norm);
+    //    //    }
+    //    //}
+
+    //    return Q_Sim(collapsed_state);
+    //}
+
+    //// Вспомогательная функция для выполнения одного измерения и возврата результата
+    //int MeasureOneShot(const vector<int>& id_qubits) {
+    //    int num_measured_qubits = id_qubits.size();
+    //    int num_possible_states = (int)pow(2, num_measured_qubits);
+
+    //    vector<complex<double>> prob(num_possible_states, complex<double>(0, 0));
+
+    //    // 1. Нормировка
+    //    double norm_factor = 0.0;
+    //    for (const auto& amplitude : vector_state_) {
+    //        norm_factor += norm(amplitude);
+    //    }
+
+    //    // 2. Вычисление вероятностей
+    //    for (int i = 0; i < vector_state_.size(); ++i) {
+    //        int pos = 0;
+    //        for (int j = 0; j < num_measured_qubits; ++j) {
+    //            if ((i >> id_qubits[j]) & 1)
+    //                pos += pow(2, j);
+    //        }
+    //        prob[pos] += norm(vector_state_[i]) / norm_factor; // Вероятности
+    //    }
+
+    //    // 3. Моделирование измерения
+    //    double r = Generation(0.0, 1.0);
+    //    double summ = 0.0;
+    //    int measured_state = -1;
+    //    for (int i = 0; i < num_possible_states; ++i) {
+    //        summ += norm(prob[i]);
+    //        if (summ >= r) {
+    //            measured_state = i;
+    //            break;
+    //        }
+    //    }
+    //    return measured_state;
+    //}
+
+
     void QuantumFullAdder(int A, int B, int Cin, int Cout)
     {   
         Toffoli(A, B, Cout);
@@ -327,40 +421,31 @@ public:
         int n = count_of_qubits;
         for (int i = 0; i < n; ++i) {
             H(i);
-            // Controlled-Phase гейты
             for (int j = i + 1; j < n; ++j) {
                 double phase = 2 * Pi / pow(2, j - i + 1);
-                CPhase(j, i, phase); // Используем свою функцию controlled_phase
+                CPhase(j, i, phase);
             }
         }
-
-        // Обратный порядок кубитов (swap)
         for (int i = 0; i < n / 2; ++i) {
-            SWAP(i, n - i - 1); // Используем свою функцию swap
+            SWAP(i, n - i - 1);
         }
     }
     void IQFT() {
         int n = count_of_qubits;
-
-        // 1. Обратный порядок кубитов (если QFT его делало)
         for (int i = 0; i < n / 2; ++i) {
             SWAP(i, n - i - 1);
         }
 
-        // 2. Controlled-Phase гейты (в обратном порядке и комплексно сопряженные фазы)
         for (int i = n - 1; i >= 0; --i) {
             for (int j = n - 1; j > i; --j) {
-                double phase = -2 * Pi / pow(2, j - i + 1); // Отрицательная фаза
+                double phase = -2 * Pi / pow(2, j - i + 1); 
                 CPhase(j, i, phase);
             }
-
-            // 3. Гейт Адамара
             H(i);
         }
     }
 
     void QFT_Range(int start, int n) {
-        // QFT, применяемое к диапазону кубитов
         for (int i = 0; i < n; ++i) {
             H(start + i);
             for (int j = i + 1; j < n; ++j) {
@@ -374,48 +459,47 @@ public:
     }
 
     void IQFT_Range(int start, int n) {
-        // IQFT, применяемое к диапазону кубитов
         for (int i = 0; i < n / 2; ++i) {
             SWAP(start + i, start + n - i - 1);
         }
         for (int i = n - 1; i >= 0; --i) {
             for (int j = n - 1; j > i; --j) {
-                double phase = -2 * Pi / pow(2, j - i + 1); // Отрицательная фаза
+                double phase = -2 * Pi / pow(2, j - i + 1);
                 CPhase(start + j, start + i, phase);
             }
 
-            // 3. Гейт Адамара
             H(start + i);
         }
     }
 
-    void quantum_addition(int a_start, int b_start, int n) {
-        // a_start - индекс первого кубита, представляющего число 'a'
-        // b_start - индекс первого кубита, представляющего число 'b'
-        // n - количество кубитов, используемых для представления каждого числа
+    void QFT_Adder(int a_start, int b_start, int n)
+    {
 
-          // 1. Применяем QFT к 'b'
         QFT_Range(b_start, n);
 
-        // 2. Применяем контролируемые фазовые сдвиги
-        for (int i = 0; i < n; ++i) {
-            for (int j = 0; j < n; ++j) {
-                double phase = Pi * pow(2, i - j - n);
-                CPhase(a_start + i, b_start + j, phase);
+        for (int i = 0; i < n; ++i)
+        {   
+            for (int j = i; j < n; ++j)
+            {
+                double phase = 2 * Pi /double((1 << (j - i + 1)));
+                CPhase(a_start + j, b_start + i, phase);
             }
         }
 
-        // 3. Применяем IQFT к 'b'
-        IQFT_Range(b_start, n);
-    }
+        IQFT_Range(b_start, n); 
 
-    void CPhase(int controlQubit, int targetQubit, double phase) {
+    }
+   
+    void CPhase(int controlQubit, int targetQubit, double phase)
+    {
         int size = static_cast<int>(vector_state_.size());
         for (int i = 0; i < size; ++i) {
-            // Проверяем, установлен ли управляющий кубит в |1⟩
-            if ((i >> controlQubit) & 1) {
-                // Применяем фазовый сдвиг к целевому кубиту
-                vector_state_[i] *= complex<double>(cos(phase), sin(phase));
+            if ((i >> controlQubit) & 1)
+            {   
+                if ((i >> targetQubit) & 1)
+                {
+                    vector_state_[i] *= complex<double>(cos(phase), sin(phase));
+                }
             }
         }
     }
@@ -423,7 +507,6 @@ public:
     void SWAP(int qubit1, int qubit2) {
         int size = static_cast<int>(vector_state_.size());
         for (int i = 0; i < size; ++i) {
-            // Проверяем, нужно ли менять местами амплитуды
             if (((i >> qubit1) & 1) != ((i >> qubit2) & 1)) {
                 int newIndex = i ^ (1 << qubit1) ^ (1 << qubit2);
                 std::swap(vector_state_[i], vector_state_[newIndex]);
@@ -431,5 +514,7 @@ public:
         }
     }
 
+
+    
 
 };

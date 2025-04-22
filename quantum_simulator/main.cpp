@@ -1,6 +1,7 @@
 #include <iostream>
 #include "quantum_simulatorV2.h"
-
+#include "q_error.h"
+#include <thread>
 using namespace std;
 
 
@@ -39,12 +40,18 @@ int main()
     //
 
 
-    //Q_Sim q(vector<complex<double>>{0.3, -0.6, -0.1, -0.7, 0, 0.1, -0.2, 0});
+    Q_Sim q("000000001");
+    
+    copy_qubit_and_sign(q, 0, 1, 2, 3, 4, 5, 6, 7, 8);
 
-    Q_Sim q("111");
+    //ошибка
+    q.X(0);
+
+    shor_correction(q, 0, 1, 2, 3, 4, 5, 6, 7, 8);
+
+    cout << q.get_system_state();
 
 
-    q.QFT();
-    cout << q;
+
     return 0;
 }
