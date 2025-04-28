@@ -419,17 +419,60 @@ public:
     
     void QFT() {
         int n = count_of_qubits;
-        for (int i = 0; i < n; ++i) {
+        for (int i = 0; i < n; ++i)
+        {
             H(i);
-            for (int j = i + 1; j < n; ++j) {
-                double phase = 2 * Pi / pow(2, j - i + 1);
+            for (int j = i + 1; j < n; ++j)
+            {
+                double phase = Pi / pow(2, j - i);
                 CPhase(j, i, phase);
             }
         }
-        for (int i = 0; i < n / 2; ++i) {
+        for (int i = 0; i < n / 2; ++i)
+        {
             SWAP(i, n - i - 1);
         }
     }
+
+    void QFT_Alex(size_t start, size_t end, double error = 0)
+    {
+        for (size_t i = end - 1; i >= start && i + 1 != 0; i--)
+        {
+            H(i);
+            for (size_t j = i - 1; j >= start && j + 1 != 0; j--)
+            {
+                CPhase(j, i, Pi / (1 << (i - j)));
+            }
+        }
+
+        /*
+        for (size_t k = start; k < ((end + start) / 2); k++)
+        {
+            SWAP(k, end + start - k - 1);
+        }
+        */
+    }
+
+    void IQFT_Alex(size_t start, size_t end, double error = 0)
+    {
+        /*
+        for (size_t k = start; k < ((end + start) / 2); k++)
+        {
+            SWAP(k, end + start - k - 1);
+        }
+        */
+
+        for (size_t i = start; i < end; i++)
+        {
+            for (size_t j = start; j < i; j++)
+            {
+                CPhase(j, i, -Pi / (1 << (i - j)));
+            }
+            H(i);
+        }
+    }
+
+
     void IQFT() {
         int n = count_of_qubits;
         for (int i = 0; i < n / 2; ++i) {
@@ -474,20 +517,22 @@ public:
 
     void QFT_Adder(int a_start, int b_start, int n)
     {
-
         QFT_Range(b_start, n);
 
         for (int i = 0; i < n; ++i)
         {   
             for (int j = i; j < n; ++j)
             {
-                double phase = 2 * Pi /double((1 << (j - i + 1)));
+                double phase = Pi /double((1 << (j - i)));
                 CPhase(a_start + j, b_start + i, phase);
             }
         }
 
         IQFT_Range(b_start, n); 
-
+        /*for (int i = 0; i < n / 2; ++i)
+        {
+            SWAP(i, n - i - 1);
+        }*/
     }
    
     void CPhase(int controlQubit, int targetQubit, double phase)
