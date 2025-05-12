@@ -2,6 +2,8 @@
 #include "quantum_simulatorV2.h"
 #include "q_error.h"
 #include <thread>
+#include <string>
+#include <fstream>
 using namespace std;
 
 
@@ -17,6 +19,23 @@ vector<T> operator&&(const vector<T>& a, const vector<T>& b)
         }
     }
     return result;
+}
+
+
+
+void measurement_res_to_file(Q_Sim& q, string file_name, int n)
+{   
+
+    vector<int> res = q.Measure(n);
+
+    std::ofstream out;
+    out.open(file_name);
+    if (out.is_open())
+    {   
+        for (auto& i : res)
+            out << i << std::endl;
+    }
+    out.close();
 }
 
 
@@ -62,14 +81,26 @@ int main()
     cout << q << endl;*/
 
 
-    Q_Sim a("0101");
+    //Q_Sim a("011001");
 
-    a.QFT_Adder(0, 2, 2);
+
+    //a.QFT_Adder(0, 3, 3);
+    ////a.SWAP(0, 1);
+    //a.update_vector();
+    //cout << a;
     
+    //cout << makeError(1, 0.1);
+
+    Q_Sim q(vector<complex<double>>{0.8, 0.6});
+    //Q_Sim q("001");
+    
+    /*vector<int> res = q.Measure(10000);
+
+    for (auto& i : res)
+        cout << i << " ";*/
 
 
-
-
+    measurement_res_to_file(q, "results.txt", 10000);
 
 
 
@@ -81,6 +112,5 @@ int main()
     a.QFT_Range(0, 3);*/
 
  
-    cout << a << endl;
     return 0;
 }

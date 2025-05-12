@@ -2,12 +2,11 @@
 #include <vector>
 #include <complex>
 #include <cmath>
-#include <widemath.h>
 #include <random>
 #include <bitset>
 #include <algorithm>
 #include <numbers>
-
+#include"q_error.h"
 
 using namespace std;
 
@@ -26,9 +25,9 @@ double Generation(double a, double b) {
 
 const vector<complex<double>> I_{ 1, 0, 0, 1 };
 const vector<complex<double>> H_{ sqrt(2) / 2, sqrt(2) / 2 ,sqrt(2) / 2, -sqrt(2) / 2 };
-const vector<complex<double>> X_{ 0, 1, 1, 0};
-const vector<complex<double>> Y_{ 0, complex<double>(0, -1), complex<double>(0, 1), 0};
-const vector<complex<double>> Z_{ 1, 0, 0, -1};
+const vector<complex<double>> X_{ 0, 1, 1, 0 };
+const vector<complex<double>> Y_{ 0, complex<double>(0, -1), complex<double>(0, 1), 0 };
+const vector<complex<double>> Z_{ 1, 0, 0, -1 };
 
 class Q_Sim
 {
@@ -77,13 +76,13 @@ public:
             throw 0;
         count_of_qubits = (int)log2(vector_state_.size());
     }
-    Q_Sim(int size): count_of_qubits((int)log2(size))
+    Q_Sim(int size) : count_of_qubits((int)log2(size))
     {
         vector_state_.push_back(1);
         for (int i = 1; i < size; ++i)
             vector_state_.push_back(0);
     }
-    Q_Sim(const string& qubits): count_of_qubits(qubits.length())
+    Q_Sim(const string& qubits) : count_of_qubits(qubits.length())
     {
         std::bitset<32> bitset(qubits);
         for (int i = 0; i < bitset.to_ulong(); ++i)
@@ -141,7 +140,7 @@ public:
         }
         vector_state_ = result;
     }
-    
+
     void CZ(int controlQubit, int targetQubit)
     {
         int size = static_cast<int>(vector_state_.size());
@@ -214,7 +213,7 @@ public:
         vector<complex<double>> result1(vector_state_.size(), complex<double>(0, 0));
         for (int i = 0; i < n; ++i)
         {
-            result[To_Measure()]++; 
+            result[To_Measure()]++;
         }
         int max_index = 0;
         int max = -1;
@@ -230,54 +229,79 @@ public:
         return result1;
     }
 
-    Q_Sim Measure(const vector<int>& id_qubits, int n = 1000)
-    {
-        vector<complex<double>> prob((int)pow(2, id_qubits.size()), complex<double>(0, 0));
-        vector<int> result(prob.size(), 0);
+    Q_Sim Measure(const vector<int>& id_qubits, int n = 1000000) {
+        // Проверка входных данных
+        if (id_qubits.empty()) {
+            throw invalid_argument("Empty qubit list for measurement");
+        }
 
-        for (int i = 0; i < vector_state_.size(); ++i)
-        {
+        // 1. Вычисляем вероятности состояний для измеряемых кубитов
+        const int num_measured_states = 1 << id_qubits.size();
+        vector<double> probabilities(num_measured_states, 0.0);
+
+        for (int i = 0; i < vector_state_.size(); ++i) {
             int pos = 0;
-            for (int j = 0; j < id_qubits.size(); ++j)
-            {     
-                if ((i >> id_qubits[j]) & 1)
-                    pos += pow(2, j);
+            for (size_t j = 0; j < id_qubits.size(); ++j) {
+                if ((i >> id_qubits[j]) & 1) {
+                    pos |= (1 << j);
+                }
             }
-            prob[pos] += norm(vector_state_[i]);
+            probabilities[pos] += norm(vector_state_[i]);
         }
 
-        for (int i = 0; i < prob.size(); ++i)
-            prob[i] = sqrt(prob[i]);
-        Q_Sim a(prob);
+        // 2. Моделируем измерения (n раз)
+        vector<int> measurement_counts(num_measured_states, 0);
+        random_device rd;
+        mt19937 gen(rd());
+        discrete_distribution<> dist(probabilities.begin(), probabilities.end());
 
-        for (int i = 0; i < n; ++i)
-        {
-            result[a.To_Measure()]++;
+        for (int i = 0; i < n; ++i) {
+            measurement_counts[dist(gen)]++;
         }
 
-        int max_index = 0;
-        int max = -1;
-        for (int i = 0; i < result.size(); ++i)
-        {
-            if (result[i] > max)
-            {
-                max_index = i;
-                max = result[i];
+        // 3. Находим наиболее вероятное состояние
+        int max_index = distance(
+            measurement_counts.begin(),
+            max_element(measurement_counts.begin(), measurement_counts.end())
+        );
+
+        // 4. Создаем коллапсированное состояние
+        vector<complex<double>> collapsed_state(vector_state_.size(), 0.0);
+        complex<double> norm_factor(0.0);
+
+        // Сначала вычисляем нормировочный коэффициент
+        for (int i = 0; i < vector_state_.size(); ++i) {
+            bool match = true;
+            for (size_t j = 0; j < id_qubits.size(); ++j) {
+                if (((i >> id_qubits[j]) & 1) != ((max_index >> j) & 1)) {
+                    match = false;
+                    break;
+                }
+            }
+            if (match) {
+                norm_factor += norm(vector_state_[i]);
             }
         }
-        vector<complex<double>> c(vector_state_.size(), complex<double>(0, 0));
-        for (int i = 0; i < c.size(); ++i)
-        {
-            bool flag = true;
-            for (int j = 0; j < id_qubits.size(); ++j)
-            {
-                flag = flag && (((i >> id_qubits[j]) & 1) == ((max_index >> j) & 1));
+
+        norm_factor = sqrt(norm_factor);
+
+        // Затем заполняем коллапсированное состояние
+        for (int i = 0; i < vector_state_.size(); ++i) {
+            bool match = true;
+            for (size_t j = 0; j < id_qubits.size(); ++j) {
+                if (((i >> id_qubits[j]) & 1) != ((max_index >> j) & 1)) {
+                    match = false;
+                    break;
+                }
             }
-            if (flag)
-                c[i] = vector_state_[i] / a[max_index];
+            if (match && norm_factor != 0.0) {
+                collapsed_state[i] = vector_state_[i] / norm_factor;
+            }
         }
-        return Q_Sim(c);
+
+        return Q_Sim(collapsed_state);
     }
+
     complex<double>& operator[](int i)
     {
         return vector_state_[i];
@@ -378,7 +402,7 @@ public:
 
 
     void QuantumFullAdder(int A, int B, int Cin, int Cout)
-    {   
+    {
         Toffoli(A, B, Cout);
         CNOT(A, B);
         Toffoli(B, Cin, Cout);
@@ -391,17 +415,17 @@ public:
         // Cout -> Cout
     }
     void QuantumAdder() // count_of_qubits = 3*n + 1 (n - first number, n - second number, n+1 - result)
-    {   
+    {
         if (count_of_qubits % 3 != 1)
             return;
-        
+
         int length = count_of_qubits / 3;
 
         for (int i = 0; i < length; ++i)
-            QuantumFullAdder(count_of_qubits - length + i, count_of_qubits - 2*length + i, i, i+1);
+            QuantumFullAdder(count_of_qubits - length + i, count_of_qubits - 2 * length + i, i, i + 1);
     }
 
-    string get_system_state()
+    /* string get_system_state()
     {
         int i;
         for (i = 0; i < vector_state_.size(); ++i)
@@ -413,10 +437,30 @@ public:
         string result = bin.to_string<char, std::char_traits<char>, std::allocator<char>>();
 
         return result.substr(result.length() - count_of_qubits, count_of_qubits);
-        
+
+    }*/
+    std::string get_system_state() const {
+        // Находим индекс состояния с максимальной вероятностью
+        int max_index = 0;
+        double max_probability = 0.0;
+
+        for (int i = 0; i < vector_state_.size(); ++i) {
+            double probability = std::norm(vector_state_[i]);
+            if (probability > max_probability) {
+                max_probability = probability;
+                max_index = i;
+            }
+        }
+
+        // Конвертируем индекс в бинарную строку
+        std::bitset<32> bin(max_index);
+        std::string binary_str = bin.to_string();
+
+        // Возвращаем только значимые биты (по количеству кубитов)
+        return binary_str.substr(binary_str.size() - count_of_qubits);
     }
 
-    
+
     void QFT() {
         int n = count_of_qubits;
         for (int i = 0; i < n; ++i)
@@ -434,7 +478,7 @@ public:
         }
     }
 
-    void QFT_Alex(size_t start, size_t end, double error = 0)
+    void QFT_Alex(size_t start, size_t end)
     {
         for (size_t i = end - 1; i >= start && i + 1 != 0; i--)
         {
@@ -444,23 +488,12 @@ public:
                 CPhase(j, i, Pi / (1 << (i - j)));
             }
         }
-
-        /*
-        for (size_t k = start; k < ((end + start) / 2); k++)
-        {
-            SWAP(k, end + start - k - 1);
-        }
-        */
     }
+
 
     void IQFT_Alex(size_t start, size_t end, double error = 0)
     {
-        /*
-        for (size_t k = start; k < ((end + start) / 2); k++)
-        {
-            SWAP(k, end + start - k - 1);
-        }
-        */
+
 
         for (size_t i = start; i < end; i++)
         {
@@ -481,66 +514,69 @@ public:
 
         for (int i = n - 1; i >= 0; --i) {
             for (int j = n - 1; j > i; --j) {
-                double phase = -2 * Pi / pow(2, j - i + 1); 
+                double phase = -2 * Pi / pow(2, j - i + 1);
                 CPhase(j, i, phase);
             }
             H(i);
         }
     }
 
-    void QFT_Range(int start, int n) {
+    void QFT_Range(int start, int n, double error = 0) {
+        for (int i = n - 1; i >= start; --i) {
+            H(i);
+            for (int j = i - 1; j >= start; --j) {
+                double phase = 2 * Pi / pow(2, i - j + 1);
+                CPhase(j, i, phase, error);
+            }
+        }
+
+    }
+
+    void IQFT_Range(int start, int n, double error = 0) {
+
+        for (int i = start; i < n; ++i) {
+            for (int j = start; j < i; ++j) {
+                double phase = -2 * Pi / pow(2, i - j + 1);
+                CPhase(j, i, phase, error);
+            }
+
+            H(i);
+        }
+    }
+    void ReverseQubitOrder(int start, int n) {
+        for (int i = 0; i < n / 2; ++i) {
+            SWAP(start + i, start + n - 1 - i);
+        }
+    }
+
+
+    void QFT_Adder(int a_start, int b_start, int n, double error = 0)
+    {
+        ReverseQubitOrder(a_start, n);
+        ReverseQubitOrder(b_start, n);
+        QFT_Range(b_start, b_start + n, error);
+
         for (int i = 0; i < n; ++i) {
-            H(start + i);
-            for (int j = i + 1; j < n; ++j) {
-                double phase = 2 * Pi / pow(2, j - i + 1);
-                CPhase(start + j, start + i, phase);
+            for (int j = i; j < n; ++j) {
+                double phase = Pi / (1 << (j - i));
+
+                CPhase(a_start + (n - 1 - j), b_start + (n - 1 - i), phase, error);
             }
         }
-        for (int i = 0; i < n / 2; ++i) {
-            SWAP(start + i, start + n - i - 1);
-        }
+
+        IQFT_Range(b_start, b_start + n, error);
+
     }
 
-    void IQFT_Range(int start, int n) {
-        for (int i = 0; i < n / 2; ++i) {
-            SWAP(start + i, start + n - i - 1);
-        }
-        for (int i = n - 1; i >= 0; --i) {
-            for (int j = n - 1; j > i; --j) {
-                double phase = -2 * Pi / pow(2, j - i + 1);
-                CPhase(start + j, start + i, phase);
-            }
-
-            H(start + i);
-        }
-    }
-
-    void QFT_Adder(int a_start, int b_start, int n)
+    void CPhase(int controlQubit, int targetQubit, double phase, double error = 0)
     {
-        QFT_Range(b_start, n);
-
-        for (int i = 0; i < n; ++i)
-        {   
-            for (int j = i; j < n; ++j)
-            {
-                double phase = Pi /double((1 << (j - i)));
-                CPhase(a_start + j, b_start + i, phase);
-            }
+        if (error != 0) {
+            phase = makeError(phase, error);
         }
-
-        IQFT_Range(b_start, n); 
-        /*for (int i = 0; i < n / 2; ++i)
-        {
-            SWAP(i, n - i - 1);
-        }*/
-    }
-   
-    void CPhase(int controlQubit, int targetQubit, double phase)
-    {
         int size = static_cast<int>(vector_state_.size());
         for (int i = 0; i < size; ++i) {
             if ((i >> controlQubit) & 1)
-            {   
+            {
                 if ((i >> targetQubit) & 1)
                 {
                     vector_state_[i] *= complex<double>(cos(phase), sin(phase));
@@ -560,6 +596,35 @@ public:
     }
 
 
-    
+    void norm_Q() {
+        // Вычисляем сумму квадратов модулей амплитуд
+        double norm_squared = 0.0;
+        for (const auto& amplitude : vector_state_) {
+            norm_squared += std::norm(amplitude); // norm = real^2 + imag^2
+        }
+
+        // Если норма нулевая (все амплитуды нулевые), ничего не делаем
+        if (norm_squared <= 0.0) return;
+
+        // Вычисляем коэффициент нормализации
+        const double scale = 1.0 / std::sqrt(norm_squared);
+        const double epsilon = 1e-10; // Порог для обнуления
+
+        // Нормализуем амплитуды и очищаем шум
+        for (auto& amplitude : vector_state_) {
+            // Нормализуем
+            amplitude *= scale;
+
+            // Очищаем шум в вещественной и мнимой частях
+            if (std::abs(amplitude.real()) < epsilon) {
+                amplitude.real(0.0);
+            }
+            if (std::abs(amplitude.imag()) < epsilon) {
+                amplitude.imag(0.0);
+            }
+        }
+    }
+
+
 
 };
