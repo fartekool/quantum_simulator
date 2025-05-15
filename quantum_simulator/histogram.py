@@ -24,7 +24,11 @@ def create_histogram(filename):
 
     # 4. Построение гистограммы
     plt.figure(figsize=(10, 6))  # Устанавливаем размер графика
-    plt.bar(states, data)  # Создаем столбчатую диаграмму
+    bars = plt.bar(states, data)  # Создаем столбчатую диаграмму
+
+    for bar in bars:
+        yval = bar.get_height() #Получаем высоту столбца
+        plt.text(bar.get_x() + bar.get_width()/2, yval, round(yval, 2), ha='center', va='bottom')
 
     # 5. Настройка графика
     plt.xlabel("Состояния", fontsize=12)  # Добавляем подпись к оси X

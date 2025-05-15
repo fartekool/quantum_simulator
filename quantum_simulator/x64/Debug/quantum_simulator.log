@@ -1,12 +1,15 @@
 ﻿  main.cpp
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.40.33807\include\numbers(11): warning STL4038: The contents of <numbers> are available only with C++20 or later.
-C:\Users\levon\Desktop\qsim\quantum_simulator\quantum_simulator\quantum_simulatorV2.h(86,49): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\levon\Desktop\qsim\quantum_simulator\quantum_simulator\quantum_simulatorV2.h(89,27): warning C4018: '<': signed/unsigned mismatch
-C:\Users\levon\Desktop\qsim\quantum_simulator\quantum_simulator\quantum_simulatorV2.h(244,31): warning C4244: '+=': conversion from 'double' to 'int', possible loss of data
-C:\Users\levon\Desktop\qsim\quantum_simulator\quantum_simulator\quantum_simulatorV2.h(441,15): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\levon\Desktop\qsim\quantum_simulator\quantum_simulator\quantum_simulatorV2.h(444,27): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\levon\Desktop\qsim\quantum_simulator\quantum_simulator\quantum_simulatorV2.h(444,24): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\levon\Desktop\qsim\quantum_simulator\quantum_simulator\quantum_simulatorV2.h(469,27): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\levon\Desktop\qsim\quantum_simulator\quantum_simulator\quantum_simulatorV2.h(469,24): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\levon\Desktop\qsim\quantum_simulator\quantum_simulator\quantum_simulatorV2.h(471,15): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\levon\Desktop\qsim\quantum_simulator\quantum_simulator\quantum_simulatorV2.h(107,50): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\levon\Desktop\qsim\quantum_simulator\quantum_simulator\quantum_simulatorV2.h(110,27): warning C4018: '<': signed/unsigned mismatch
+C:\Users\levon\Desktop\qsim\quantum_simulator\quantum_simulator\quantum_simulatorV2.h(119,34): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\levon\Desktop\qsim\quantum_simulator\quantum_simulator\quantum_simulatorV2.h(297,23): warning C4244: 'initializing': conversion from '__int64' to 'int', possible loss of data
+C:\Users\levon\Desktop\qsim\quantum_simulator\quantum_simulator\quantum_simulatorV2.h(519,15): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\levon\Desktop\qsim\quantum_simulator\quantum_simulator\quantum_simulatorV2.h(522,27): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\levon\Desktop\qsim\quantum_simulator\quantum_simulator\quantum_simulatorV2.h(522,24): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\levon\Desktop\qsim\quantum_simulator\quantum_simulator\quantum_simulatorV2.h(536,27): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\levon\Desktop\qsim\quantum_simulator\quantum_simulator\quantum_simulatorV2.h(536,24): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\levon\Desktop\qsim\quantum_simulator\quantum_simulator\quantum_simulatorV2.h(538,15): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\levon\Desktop\qsim\quantum_simulator\quantum_simulator\quantum_simulatorV2.h(800,36): warning C4334: '<<': result of 32-bit shift implicitly converted to 64 bits (was 64-bit shift intended?)
+C:\Users\levon\Desktop\qsim\quantum_simulator\quantum_simulator\quantum_simulatorV2.h(833,11): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\levon\Desktop\qsim\quantum_simulator\quantum_simulator\quantum_simulatorV2.h(834,11): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
   quantum_simulator.vcxproj -> C:\Users\levon\Desktop\qsim\quantum_simulator\x64\Debug\quantum_simulator.exe

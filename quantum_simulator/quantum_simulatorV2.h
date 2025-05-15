@@ -5,13 +5,35 @@
 #include <random>
 #include <bitset>
 #include <algorithm>
-#include <numbers>
-#include"q_error.h"
 
 using namespace std;
 
 const double Pi = 3.14159265358979323846;
 const double Pi_ = 3.14;
+
+double makeError(double phi, double disp)
+{
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::normal_distribution<> d(0, disp);
+    double random = d(gen);
+    return (phi + random);
+}
+
+
+template<class T>
+vector<T> operator&&(const vector<T>& a, const vector<T>& b)
+{
+    vector<T> result(a.size() * b.size());
+    for (int i = 0; i < a.size(); ++i)
+    {
+        for (int j = 0; j < b.size(); ++j)
+        {
+            result[i * b.size() + j] = a[i] * b[j];
+        }
+    }
+    return result;
+}
 
 double Generation(double a, double b) {
     std::random_device rd;
@@ -92,6 +114,18 @@ public:
             vector_state_.push_back(complex<double>(0, 0));
     }
 
+    int get_size()
+    {
+        return vector_state_.size();
+    }
+    int get_count_of_qubits()
+    {
+        return count_of_qubits;
+    }
+    vector<complex<double>> get_vector_state()
+    {
+        return vector_state_;
+    }
     void H(int n)
     {
         U(H_, n);
@@ -207,7 +241,7 @@ public:
         //return result;
     }
 
-    vector<complex<double>> Measure(int n)
+    vector<int> Measure(int n)
     {
         vector<int> result(vector_state_.size(), 0);
         vector<complex<double>> result1(vector_state_.size(), complex<double>(0, 0));
@@ -215,7 +249,7 @@ public:
         {
             result[To_Measure()]++;
         }
-        int max_index = 0;
+        /*int max_index = 0;
         int max = -1;
         for (int i = 0; i < result.size(); ++i)
         {
@@ -224,9 +258,9 @@ public:
                 max_index = i;
                 max = result[i];
             }
-        }
-        result1[max_index] = complex<double>(1, 0);
-        return result1;
+        }*/
+        //result1[max_index] = complex<double>(1, 0);
+        return result;
     }
 
     Q_Sim Measure(const vector<int>& id_qubits, int n = 1000000) {
@@ -626,5 +660,190 @@ public:
     }
 
 
+    void QFT_Sub(int a_start, int b_start, int n, double error = 0)
+    {
+        ReverseQubitOrder(a_start, n);
+        ReverseQubitOrder(b_start, n);
+        QFT_Range(b_start, b_start + n, error);
 
+        for (int i = 0; i < n; ++i) {
+            for (int j = i; j < n; ++j) {
+                double phase = -Pi / (1 << (j - i));
+
+                CPhase(a_start + (n - 1 - j), b_start + (n - 1 - i), phase, error);
+            }
+        }
+    
+        IQFT_Range(b_start, b_start + n, error);
+
+    }
 };
+
+
+
+
+
+// flip qubit
+
+void copy_qubit(Q_Sim& q, int qubit, int ancilla1, int ancilla2)
+{
+    q.CNOT(qubit, ancilla1);
+    q.CNOT(qubit, ancilla2);
+}
+
+
+void qubit_flip_correction(Q_Sim& q, int qubit, int ancilla1, int ancilla2)
+{
+    q.CNOT(qubit, ancilla1);
+    q.CNOT(qubit, ancilla2);
+
+    q.Toffoli(ancilla2, ancilla1, qubit);
+}
+
+
+// sign flip
+
+void copy_sign(Q_Sim& q, int qubit, int ancilla1, int ancilla2)
+{
+    q.CNOT(qubit, ancilla1);
+    q.CNOT(qubit, ancilla2);
+    q.H(qubit);
+    q.H(ancilla1);
+    q.H(ancilla2);
+}
+
+void sign_flip_correction(Q_Sim& q, int qubit, int ancilla1, int ancilla2)
+{
+    q.H(qubit);
+    q.H(ancilla1);
+    q.H(ancilla2);
+
+    q.CNOT(qubit, ancilla1);
+    q.CNOT(qubit, ancilla2);
+
+    q.Toffoli(ancilla2, ancilla1, qubit);
+}
+
+
+void copy_qubit_and_sign(Q_Sim& q, int qubit, int ancilla1, int ancilla2,
+    int ancilla3, int ancilla4, int ancilla5, int ancilla6, int ancilla7, int ancilla8)
+{
+    q.CNOT(qubit, ancilla3);
+    q.CNOT(qubit, ancilla6);
+
+    q.H(qubit);
+    q.H(ancilla3);
+    q.H(ancilla6);
+
+
+
+    q.CNOT(qubit, ancilla1);
+    q.CNOT(ancilla3, ancilla4);
+    q.CNOT(ancilla6, ancilla7);
+
+    q.CNOT(qubit, ancilla2);
+    q.CNOT(ancilla3, ancilla5);
+    q.CNOT(ancilla6, ancilla8);
+}
+
+void shor_correction(Q_Sim& q, int qubit, int ancilla1, int ancilla2,
+    int ancilla3, int ancilla4, int ancilla5, int ancilla6, int ancilla7, int ancilla8)
+{
+    q.CNOT(qubit, ancilla1);
+    q.CNOT(ancilla3, ancilla4);
+    q.CNOT(ancilla6, ancilla7);
+
+    q.CNOT(qubit, ancilla2);
+    q.CNOT(ancilla3, ancilla5);
+    q.CNOT(ancilla6, ancilla8);
+
+
+    q.Toffoli(ancilla2, ancilla1, qubit);
+    q.Toffoli(ancilla5, ancilla4, ancilla3);
+    q.Toffoli(ancilla8, ancilla7, ancilla6);
+
+
+
+    q.H(qubit);
+    q.H(ancilla3);
+    q.H(ancilla6);
+
+
+    q.CNOT(qubit, ancilla3);
+    q.CNOT(qubit, ancilla6);
+
+
+    q.Toffoli(ancilla6, ancilla3, qubit);
+}
+
+
+Q_Sim Get_system_for_correction(Q_Sim& q, int repetition)
+{
+
+    
+
+    vector<complex<double>> res_vector = q.get_vector_state();
+    vector<complex<double>> zero_qubit = { 1, 0 };
+    for (int i = 0; i < q.get_count_of_qubits() * (repetition - 1); ++i)
+    {
+        res_vector =   zero_qubit && res_vector;
+    }
+
+    
+
+    return Q_Sim(res_vector);
+}
+
+Q_Sim Get_system_for_first_n_qubits(Q_Sim q, int n)
+{
+
+    vector<complex<double>> res((1 << n), 0.0);
+
+
+    for (int i = 0; i < res.size(); ++i)
+    {
+        for (int j = i; j < q.get_size(); j += (1 << n))
+        {
+            res[i] += q[j];
+        }
+    }
+
+
+    double norma = 0.0;
+    for (const auto& amplitude : res) {
+        norma += norm(amplitude);
+    }
+    norma = sqrt(norma);
+
+    for (auto& amplitude : res) {
+        amplitude /= norma;
+    }
+    return Q_Sim(res);
+
+
+
+}
+
+
+
+static double calculateRMSE(const vector<complex<double>>& ideal,
+    const vector<vector<complex<double>>>& noisyStates)
+{
+    double totalError = 0.0;
+    int p = noisyStates.size();
+    int n = ideal.size();
+
+    for (const auto& noisy : noisyStates)
+    {
+        double sumSq = 0.0;
+        for (int i = 0; i < n; ++i)
+        {
+            double diffReal = ideal[i].real() - noisy[i].real();
+            double diffImag = ideal[i].imag() - noisy[i].imag();
+            sumSq += diffReal * diffReal + diffImag * diffImag;
+        }
+        totalError += sumSq;
+    }
+
+    return sqrt(totalError / p);
+}
