@@ -23,6 +23,42 @@ using namespace std;
 
 
 
+vector<vector<complex<double>>> Create_vector_noise(Q_Sim& ideal, double disp,int count,bool correction){
+    vector<vector<complex<double>>> vector_noises;
+    for(int i=0;i<count;++i){
+        Q_Sim noise_vector(ideal.get_vector_state());
+        if(!correction)
+            noise_vector.QFT_Adder(0, 2, 2,disp);
+        else
+            noise_vector.QFT_Adder_with_correction(0, 2, 2, disp);
+        vector_noises.push_back(noise_vector.get_vector_state());
+    }
+    return vector_noises;
+}
+
+
+
+
+void RMSE_res_to_file(Q_Sim& ideal, string file_name, double max_disp, double step, int count, bool correction){
+    vector<pair<double,double>> x_y;
+    for(double disp=0;disp <= max_disp;disp += step){
+        double RMSE_calculate =0;
+        x_y.push_back({disp,calculateRMSE(ideal.get_vector_state(), Create_vector_noise(ideal, disp, count, correction))});
+    }
+
+    std::ofstream out;
+    out.open(file_name);
+    if (out.is_open())
+    {
+        for (auto& coord : x_y)
+            out << coord.first <<  " " << coord.second << std::endl;
+    }
+
+    out.close();
+}
+
+
+
 void measurement_res_to_file(Q_Sim& q, string file_name, int n)
 {   
 
@@ -163,11 +199,9 @@ int main()
 
     
     // ÁÅÇ ÊÎÐÐÅÊÖÈÈ ÎØÈÁÊÈ
-    q.QFT_Adder(0, 2, 2, 0.1);
+    //q.QFT_Adder(0, 2, 2, 0.5);
 
-    cout << q;
 
-    measurement_res_to_file(q, "results.txt", 20000);
 
 
     
@@ -175,31 +209,15 @@ int main()
 
     // Ñ êîððåêöèåé îøèáêè
 
-    
-
-    /*Q_Sim a = Get_system_for_correction(q, 3);
-
-    copy_qubit(a, 0, 4, 8);
-    copy_qubit(a, 1, 5, 9);
-    copy_qubit(a, 2, 6, 10);
-    copy_qubit(a, 3, 7, 11);
-
-    a.QFT_Adder(0, 2, 2, 0.1);
-    a.QFT_Adder(4, 6, 2, 0.1);
-    a.QFT_Adder(8, 10, 2, 0.1);
+    /*q.QFT_Adder_with_correction(0, 2, 2, 0.1);
 
 
-    qubit_flip_correction(a, 0, 4, 8);
-    qubit_flip_correction(a, 1, 5, 9);
-    qubit_flip_correction(a, 2, 6, 10);
-    qubit_flip_correction(a, 3, 7, 11);
+    measurement_res_to_file(q, "results.txt", 20000);*/
+    RMSE_res_to_file(q, "coord.txt", 10, 0.1, 1000, 0);
 
+    /*vector<vector<complex<double>>> fjiaooh;
+    fjiaooh.push_back(q.get_vector_state());
 
-
-    Q_Sim b = Get_system_for_first_n_qubits(a, 4);
-    cout << b;
-
-    measurement_res_to_file(b, "results.txt", 20000);*/
-
+    cout << calculateRMSE(q.get_vector_state(), fjiaooh);*/
     return 0;
 }

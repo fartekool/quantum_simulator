@@ -38,5 +38,6 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="results.txt" />
+    <Text Include="coord.txt" />
   </ItemGroup>
 </Project>

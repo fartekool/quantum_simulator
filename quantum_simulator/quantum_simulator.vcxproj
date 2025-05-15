@@ -137,6 +137,7 @@
     <ClInclude Include="q_error.h" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="coord.txt" />
     <Text Include="results.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

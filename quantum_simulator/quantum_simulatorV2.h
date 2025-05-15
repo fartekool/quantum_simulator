@@ -601,6 +601,31 @@ public:
         IQFT_Range(b_start, b_start + n, error);
 
     }
+    void QFT_Adder_with_correction(int a_start, int b_start, int n, double error = 0) // only for 4-qubit system (hardcode)
+    {
+
+        Q_Sim a = Get_system_for_correction(*this, 3);
+
+        copy_qubit(a, 0, 4, 8);
+        copy_qubit(a, 1, 5, 9);
+        copy_qubit(a, 2, 6, 10);
+        copy_qubit(a, 3, 7, 11);
+
+        a.QFT_Adder(0, 2, 2, error);
+        a.QFT_Adder(4, 6, 2, error);
+        a.QFT_Adder(8, 10, 2, error);
+
+
+        qubit_flip_correction(a, 0, 4, 8);
+        qubit_flip_correction(a, 1, 5, 9);
+        qubit_flip_correction(a, 2, 6, 10);
+        qubit_flip_correction(a, 3, 7, 11);
+
+
+
+        Q_Sim b = Get_system_for_first_n_qubits(a, 4);
+        this->vector_state_ = b.get_vector_state();
+    }
 
     void CPhase(int controlQubit, int targetQubit, double phase, double error = 0)
     {
@@ -677,6 +702,133 @@ public:
         IQFT_Range(b_start, b_start + n, error);
 
     }
+
+    void copy_qubit(Q_Sim& q, int qubit, int ancilla1, int ancilla2)
+    {
+        q.CNOT(qubit, ancilla1);
+        q.CNOT(qubit, ancilla2);
+    }
+    void qubit_flip_correction(Q_Sim& q, int qubit, int ancilla1, int ancilla2)
+    {
+        q.CNOT(qubit, ancilla1);
+        q.CNOT(qubit, ancilla2);
+
+        q.Toffoli(ancilla2, ancilla1, qubit);
+    }
+    void copy_sign(Q_Sim& q, int qubit, int ancilla1, int ancilla2)
+    {
+        q.CNOT(qubit, ancilla1);
+        q.CNOT(qubit, ancilla2);
+        q.H(qubit);
+        q.H(ancilla1);
+        q.H(ancilla2);
+    }
+    void sign_flip_correction(Q_Sim& q, int qubit, int ancilla1, int ancilla2)
+    {
+        q.H(qubit);
+        q.H(ancilla1);
+        q.H(ancilla2);
+
+        q.CNOT(qubit, ancilla1);
+        q.CNOT(qubit, ancilla2);
+
+        q.Toffoli(ancilla2, ancilla1, qubit);
+    }
+    void copy_qubit_and_sign(Q_Sim& q, int qubit, int ancilla1, int ancilla2,
+        int ancilla3, int ancilla4, int ancilla5, int ancilla6, int ancilla7, int ancilla8)
+    {
+        q.CNOT(qubit, ancilla3);
+        q.CNOT(qubit, ancilla6);
+
+        q.H(qubit);
+        q.H(ancilla3);
+        q.H(ancilla6);
+
+
+
+        q.CNOT(qubit, ancilla1);
+        q.CNOT(ancilla3, ancilla4);
+        q.CNOT(ancilla6, ancilla7);
+
+        q.CNOT(qubit, ancilla2);
+        q.CNOT(ancilla3, ancilla5);
+        q.CNOT(ancilla6, ancilla8);
+    }
+    void shor_correction(Q_Sim& q, int qubit, int ancilla1, int ancilla2,
+        int ancilla3, int ancilla4, int ancilla5, int ancilla6, int ancilla7, int ancilla8)
+    {
+        q.CNOT(qubit, ancilla1);
+        q.CNOT(ancilla3, ancilla4);
+        q.CNOT(ancilla6, ancilla7);
+
+        q.CNOT(qubit, ancilla2);
+        q.CNOT(ancilla3, ancilla5);
+        q.CNOT(ancilla6, ancilla8);
+
+
+        q.Toffoli(ancilla2, ancilla1, qubit);
+        q.Toffoli(ancilla5, ancilla4, ancilla3);
+        q.Toffoli(ancilla8, ancilla7, ancilla6);
+
+
+
+        q.H(qubit);
+        q.H(ancilla3);
+        q.H(ancilla6);
+
+
+        q.CNOT(qubit, ancilla3);
+        q.CNOT(qubit, ancilla6);
+
+
+        q.Toffoli(ancilla6, ancilla3, qubit);
+    }
+    Q_Sim Get_system_for_correction(Q_Sim& q, int repetition)
+    {
+
+
+
+        vector<complex<double>> res_vector = q.get_vector_state();
+        vector<complex<double>> zero_qubit = { 1, 0 };
+        for (int i = 0; i < q.get_count_of_qubits() * (repetition - 1); ++i)
+        {
+            res_vector = zero_qubit && res_vector;
+        }
+
+
+
+        return Q_Sim(res_vector);
+    }
+
+    Q_Sim Get_system_for_first_n_qubits(Q_Sim q, int n)
+    {
+
+        vector<complex<double>> res((1 << n), 0.0);
+
+
+        for (int i = 0; i < res.size(); ++i)
+        {
+            for (int j = i; j < q.get_size(); j += (1 << n))
+            {
+                res[i] += q[j];
+            }
+        }
+
+
+        double norma = 0.0;
+        for (const auto& amplitude : res) {
+            norma += norm(amplitude);
+        }
+        norma = sqrt(norma);
+
+        for (auto& amplitude : res) {
+            amplitude /= norma;
+        }
+        return Q_Sim(res);
+
+
+
+    }
 };
 
 
@@ -685,144 +837,144 @@ public:
 
 // flip qubit
 
-void copy_qubit(Q_Sim& q, int qubit, int ancilla1, int ancilla2)
-{
-    q.CNOT(qubit, ancilla1);
-    q.CNOT(qubit, ancilla2);
-}
+//void copy_qubit(Q_Sim& q, int qubit, int ancilla1, int ancilla2)
+//{
+//    q.CNOT(qubit, ancilla1);
+//    q.CNOT(qubit, ancilla2);
+//}
 
 
-void qubit_flip_correction(Q_Sim& q, int qubit, int ancilla1, int ancilla2)
-{
-    q.CNOT(qubit, ancilla1);
-    q.CNOT(qubit, ancilla2);
-
-    q.Toffoli(ancilla2, ancilla1, qubit);
-}
-
-
-// sign flip
-
-void copy_sign(Q_Sim& q, int qubit, int ancilla1, int ancilla2)
-{
-    q.CNOT(qubit, ancilla1);
-    q.CNOT(qubit, ancilla2);
-    q.H(qubit);
-    q.H(ancilla1);
-    q.H(ancilla2);
-}
-
-void sign_flip_correction(Q_Sim& q, int qubit, int ancilla1, int ancilla2)
-{
-    q.H(qubit);
-    q.H(ancilla1);
-    q.H(ancilla2);
-
-    q.CNOT(qubit, ancilla1);
-    q.CNOT(qubit, ancilla2);
-
-    q.Toffoli(ancilla2, ancilla1, qubit);
-}
+//void qubit_flip_correction(Q_Sim& q, int qubit, int ancilla1, int ancilla2)
+//{
+//    q.CNOT(qubit, ancilla1);
+//    q.CNOT(qubit, ancilla2);
+//
+//    q.Toffoli(ancilla2, ancilla1, qubit);
+//}
 
 
-void copy_qubit_and_sign(Q_Sim& q, int qubit, int ancilla1, int ancilla2,
-    int ancilla3, int ancilla4, int ancilla5, int ancilla6, int ancilla7, int ancilla8)
-{
-    q.CNOT(qubit, ancilla3);
-    q.CNOT(qubit, ancilla6);
+ //sign flip
 
-    q.H(qubit);
-    q.H(ancilla3);
-    q.H(ancilla6);
+//void copy_sign(Q_Sim& q, int qubit, int ancilla1, int ancilla2)
+//{
+//    q.CNOT(qubit, ancilla1);
+//    q.CNOT(qubit, ancilla2);
+//    q.H(qubit);
+//    q.H(ancilla1);
+//    q.H(ancilla2);
+//}
 
-
-
-    q.CNOT(qubit, ancilla1);
-    q.CNOT(ancilla3, ancilla4);
-    q.CNOT(ancilla6, ancilla7);
-
-    q.CNOT(qubit, ancilla2);
-    q.CNOT(ancilla3, ancilla5);
-    q.CNOT(ancilla6, ancilla8);
-}
-
-void shor_correction(Q_Sim& q, int qubit, int ancilla1, int ancilla2,
-    int ancilla3, int ancilla4, int ancilla5, int ancilla6, int ancilla7, int ancilla8)
-{
-    q.CNOT(qubit, ancilla1);
-    q.CNOT(ancilla3, ancilla4);
-    q.CNOT(ancilla6, ancilla7);
-
-    q.CNOT(qubit, ancilla2);
-    q.CNOT(ancilla3, ancilla5);
-    q.CNOT(ancilla6, ancilla8);
+//void sign_flip_correction(Q_Sim& q, int qubit, int ancilla1, int ancilla2)
+//{
+//    q.H(qubit);
+//    q.H(ancilla1);
+//    q.H(ancilla2);
+//
+//    q.CNOT(qubit, ancilla1);
+//    q.CNOT(qubit, ancilla2);
+//
+//    q.Toffoli(ancilla2, ancilla1, qubit);
+//}
 
 
-    q.Toffoli(ancilla2, ancilla1, qubit);
-    q.Toffoli(ancilla5, ancilla4, ancilla3);
-    q.Toffoli(ancilla8, ancilla7, ancilla6);
+//void copy_qubit_and_sign(Q_Sim& q, int qubit, int ancilla1, int ancilla2,
+//    int ancilla3, int ancilla4, int ancilla5, int ancilla6, int ancilla7, int ancilla8)
+//{
+//    q.CNOT(qubit, ancilla3);
+//    q.CNOT(qubit, ancilla6);
+//
+//    q.H(qubit);
+//    q.H(ancilla3);
+//    q.H(ancilla6);
+//
+//
+//
+//    q.CNOT(qubit, ancilla1);
+//    q.CNOT(ancilla3, ancilla4);
+//    q.CNOT(ancilla6, ancilla7);
+//
+//    q.CNOT(qubit, ancilla2);
+//    q.CNOT(ancilla3, ancilla5);
+//    q.CNOT(ancilla6, ancilla8);
+//}
+
+//void shor_correction(Q_Sim& q, int qubit, int ancilla1, int ancilla2,
+//    int ancilla3, int ancilla4, int ancilla5, int ancilla6, int ancilla7, int ancilla8)
+//{
+//    q.CNOT(qubit, ancilla1);
+//    q.CNOT(ancilla3, ancilla4);
+//    q.CNOT(ancilla6, ancilla7);
+//
+//    q.CNOT(qubit, ancilla2);
+//    q.CNOT(ancilla3, ancilla5);
+//    q.CNOT(ancilla6, ancilla8);
+//
+//
+//    q.Toffoli(ancilla2, ancilla1, qubit);
+//    q.Toffoli(ancilla5, ancilla4, ancilla3);
+//    q.Toffoli(ancilla8, ancilla7, ancilla6);
+//
+//
+//
+//    q.H(qubit);
+//    q.H(ancilla3);
+//    q.H(ancilla6);
+//
+//
+//    q.CNOT(qubit, ancilla3);
+//    q.CNOT(qubit, ancilla6);
+//
+//
+//    q.Toffoli(ancilla6, ancilla3, qubit);
+//}
 
 
-
-    q.H(qubit);
-    q.H(ancilla3);
-    q.H(ancilla6);
-
-
-    q.CNOT(qubit, ancilla3);
-    q.CNOT(qubit, ancilla6);
-
-
-    q.Toffoli(ancilla6, ancilla3, qubit);
-}
-
-
-Q_Sim Get_system_for_correction(Q_Sim& q, int repetition)
-{
-
-    
-
-    vector<complex<double>> res_vector = q.get_vector_state();
-    vector<complex<double>> zero_qubit = { 1, 0 };
-    for (int i = 0; i < q.get_count_of_qubits() * (repetition - 1); ++i)
-    {
-        res_vector =   zero_qubit && res_vector;
-    }
-
-    
-
-    return Q_Sim(res_vector);
-}
-
-Q_Sim Get_system_for_first_n_qubits(Q_Sim q, int n)
-{
-
-    vector<complex<double>> res((1 << n), 0.0);
-
-
-    for (int i = 0; i < res.size(); ++i)
-    {
-        for (int j = i; j < q.get_size(); j += (1 << n))
-        {
-            res[i] += q[j];
-        }
-    }
-
-
-    double norma = 0.0;
-    for (const auto& amplitude : res) {
-        norma += norm(amplitude);
-    }
-    norma = sqrt(norma);
-
-    for (auto& amplitude : res) {
-        amplitude /= norma;
-    }
-    return Q_Sim(res);
-
-
-
-}
+//Q_Sim Get_system_for_correction(Q_Sim& q, int repetition)
+//{
+//
+//    
+//
+//    vector<complex<double>> res_vector = q.get_vector_state();
+//    vector<complex<double>> zero_qubit = { 1, 0 };
+//    for (int i = 0; i < q.get_count_of_qubits() * (repetition - 1); ++i)
+//    {
+//        res_vector =   zero_qubit && res_vector;
+//    }
+//
+//    
+//
+//    return Q_Sim(res_vector);
+//}
+//
+//Q_Sim Get_system_for_first_n_qubits(Q_Sim q, int n)
+//{
+//
+//    vector<complex<double>> res((1 << n), 0.0);
+//
+//
+//    for (int i = 0; i < res.size(); ++i)
+//    {
+//        for (int j = i; j < q.get_size(); j += (1 << n))
+//        {
+//            res[i] += q[j];
+//        }
+//    }
+//
+//
+//    double norma = 0.0;
+//    for (const auto& amplitude : res) {
+//        norma += norm(amplitude);
+//    }
+//    norma = sqrt(norma);
+//
+//    for (auto& amplitude : res) {
+//        amplitude /= norma;
+//    }
+//    return Q_Sim(res);
+//
+//
+//
+//}
 
 
 
@@ -837,13 +989,14 @@ static double calculateRMSE(const vector<complex<double>>& ideal,
     {
         double sumSq = 0.0;
         for (int i = 0; i < n; ++i)
-        {
+        {   
+
             double diffReal = ideal[i].real() - noisy[i].real();
             double diffImag = ideal[i].imag() - noisy[i].imag();
             sumSq += diffReal * diffReal + diffImag * diffImag;
         }
-        totalError += sumSq;
+        totalError += sqrt(sumSq);
     }
 
-    return sqrt(totalError / p);
+    return totalError / p;
 }
