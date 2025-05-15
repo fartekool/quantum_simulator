@@ -10,6 +10,6 @@ C:\Users\levon\Desktop\qsim\quantum_simulator\quantum_simulator\quantum_simulato
 C:\Users\levon\Desktop\qsim\quantum_simulator\quantum_simulator\quantum_simulatorV2.h(536,24): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
 C:\Users\levon\Desktop\qsim\quantum_simulator\quantum_simulator\quantum_simulatorV2.h(538,15): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
 C:\Users\levon\Desktop\qsim\quantum_simulator\quantum_simulator\quantum_simulatorV2.h(806,40): warning C4334: '<<': result of 32-bit shift implicitly converted to 64 bits (was 64-bit shift intended?)
+C:\Users\levon\Desktop\qsim\quantum_simulator\quantum_simulator\quantum_simulatorV2.h(984,11): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
 C:\Users\levon\Desktop\qsim\quantum_simulator\quantum_simulator\quantum_simulatorV2.h(985,11): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\levon\Desktop\qsim\quantum_simulator\quantum_simulator\quantum_simulatorV2.h(986,11): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
   quantum_simulator.vcxproj -> C:\Users\levon\Desktop\qsim\quantum_simulator\x64\Debug\quantum_simulator.exe

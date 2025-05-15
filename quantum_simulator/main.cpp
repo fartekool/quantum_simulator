@@ -39,11 +39,16 @@ vector<vector<complex<double>>> Create_vector_noise(Q_Sim& ideal, double disp,in
 
 
 
-void RMSE_res_to_file(Q_Sim& ideal, string file_name, double max_disp, double step, int count, bool correction){
+void RMSE_res_to_file(Q_Sim& ideal, string file_name, double max_disp, double step, int count, bool correction)
+{   
+    Q_Sim ideal_sum(ideal.get_vector_state());
+    ideal_sum.QFT_Adder(0, 2, 2);
+
     vector<pair<double,double>> x_y;
     for(double disp=0;disp <= max_disp;disp += step){
         double RMSE_calculate =0;
-        x_y.push_back({disp,calculateRMSE(ideal.get_vector_state(), Create_vector_noise(ideal, disp, count, correction))});
+        x_y.push_back({disp,calculateRMSE(ideal_sum.get_vector_state(), Create_vector_noise(ideal, disp, count, correction))});
+        cout << disp << endl;
     }
 
     std::ofstream out;
@@ -51,7 +56,7 @@ void RMSE_res_to_file(Q_Sim& ideal, string file_name, double max_disp, double st
     if (out.is_open())
     {
         for (auto& coord : x_y)
-            out << coord.first <<  " " << coord.second << std::endl;
+            out << coord.first <<  "        " << coord.second << std::endl;
     }
 
     out.close();
@@ -82,7 +87,15 @@ void measurement_res_to_file(Q_Sim& q, string file_name, int n)
 
 }
 
+void RMSE_graph(Q_Sim& q, string file_name1, string file_name2, double max_disp, double step, int count)
+{
+    RMSE_res_to_file(q, file_name1, max_disp, step, count, 0);
+    RMSE_res_to_file(q, file_name2, max_disp, step, count, 1);
 
+    std::string command = "py -3 RMSE.py";
+
+    system(command.c_str());
+}
 
 
 int main()
@@ -213,7 +226,7 @@ int main()
 
 
     measurement_res_to_file(q, "results.txt", 20000);*/
-    RMSE_res_to_file(q, "coord.txt", 10, 0.1, 1000, 0);
+    RMSE_graph(q, "coord.txt", "coord_correction.txt", 10, 0.5, 1000);
 
     /*vector<vector<complex<double>>> fjiaooh;
     fjiaooh.push_back(q.get_vector_state());

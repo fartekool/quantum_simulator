@@ -978,25 +978,21 @@ public:
 
 
 
-static double calculateRMSE(const vector<complex<double>>& ideal,
-    const vector<vector<complex<double>>>& noisyStates)
-{
+static double calculateRMSE(const std::vector<std::complex<double>>& ideal,
+    const std::vector<std::vector<std::complex<double>>>& noisyStates) {
     double totalError = 0.0;
     int p = noisyStates.size();
     int n = ideal.size();
 
-    for (const auto& noisy : noisyStates)
-    {
+    for (const auto& noisy : noisyStates) {
         double sumSq = 0.0;
-        for (int i = 0; i < n; ++i)
-        {   
-
+        for (int i = 0; i < n; ++i) {
             double diffReal = ideal[i].real() - noisy[i].real();
             double diffImag = ideal[i].imag() - noisy[i].imag();
             sumSq += diffReal * diffReal + diffImag * diffImag;
         }
-        totalError += sqrt(sumSq);
+        totalError += sumSq;
     }
 
-    return totalError / p;
+    return std::sqrt(totalError / p);
 }
