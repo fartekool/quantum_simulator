@@ -39,13 +39,13 @@ vector<vector<complex<double>>> Create_vector_noise(Q_Sim& ideal, double disp,in
 
 
 
-void RMSE_res_to_file(Q_Sim& ideal, string file_name, double max_disp, double step, int count, bool correction)
+void RMSE_res_to_file(Q_Sim& ideal, string file_name, double min_disp, double max_disp, double step, int count, bool correction)
 {   
     Q_Sim ideal_sum(ideal.get_vector_state());
     ideal_sum.QFT_Adder(0, 2, 2);
 
     vector<pair<double,double>> x_y;
-    for(double disp=0;disp <= max_disp;disp += step){
+    for(double disp=min_disp;disp <= max_disp;disp += step){
         double RMSE_calculate =0;
         x_y.push_back({disp,calculateRMSE(ideal_sum.get_vector_state(), Create_vector_noise(ideal, disp, count, correction))});
         cout << disp << endl;
@@ -64,16 +64,28 @@ void RMSE_res_to_file(Q_Sim& ideal, string file_name, double max_disp, double st
 
 
 
-void measurement_res_to_file(Q_Sim& q, string file_name, int n)
+void measurement_res_to_file(Q_Sim& q, string file_name, int n, bool correction, double disp = 0)
 {   
+    vector<int> res1(q.get_size(), 0);
+    for (int i = 0; i < n; ++i)
+    {   
+        Q_Sim a(q.get_vector_state());
+        if (!correction)
+            a.QFT_Adder(0, 2, 2, disp);
+        else
+            a.QFT_Adder_with_correction(0, 2, 2, disp);
+        res1[a.To_Measure()]++;
+        cout << i << ' ';
+    }
+    
 
-    vector<int> res = q.Measure(n);
+    //vector<int> res = q.Measure(n);
 
     std::ofstream out;
     out.open(file_name);
     if (out.is_open())
     {   
-        for (auto& i : res)
+        for (auto& i : res1)
             out << i << std::endl;
     }
     out.close();
@@ -87,14 +99,76 @@ void measurement_res_to_file(Q_Sim& q, string file_name, int n)
 
 }
 
-void RMSE_graph(Q_Sim& q, string file_name1, string file_name2, double max_disp, double step, int count)
+void RMSE_graph(Q_Sim& q, string file_name1, string file_name2, double min_disp,double max_disp, double step, int count)
 {
-    RMSE_res_to_file(q, file_name1, max_disp, step, count, 0);
-    RMSE_res_to_file(q, file_name2, max_disp, step, count, 1);
+    RMSE_res_to_file(q, file_name1, min_disp, max_disp, step, count, 0);
+    RMSE_res_to_file(q, file_name2, min_disp, max_disp, step, count, 1);
 
     std::string command = "py -3 RMSE.py";
 
     system(command.c_str());
+}
+
+
+void accuracy_graph(Q_Sim& q, string file_name1, string file_name2, double min_disp, double max_disp, double step0_2, double step2_, int count)
+{
+    vector<pair<double, double>> x_y_with_correction;
+    vector<pair<double, double>> x_y_without_correction;
+    Q_Sim ideal_sum(q.get_vector_state());
+    ideal_sum.QFT_Adder(0, 2, 2);
+    int N = ideal_sum.To_Measure();
+
+    for (double disp = min_disp; disp <= max_disp; )
+    {
+        int hit1 = 0;
+        int hit2 = 0;
+        for (int i = 0; i < count; ++i)
+        {
+            Q_Sim a(q.get_vector_state());
+            Q_Sim b(q.get_vector_state());
+            a.QFT_Adder(0, 2, 2, disp);
+            b.QFT_Adder_with_correction(0, 2, 2, disp);
+            int M = a.To_Measure();
+            int K = b.To_Measure();
+            if (N == M)
+                ++hit1;
+            if (N == K)
+                ++hit2;
+        }
+        double accuracy1 = (double)hit1 / (double)count;
+        double accuracy2 = (double)hit2 / (double)count;
+        x_y_without_correction.push_back({ disp, accuracy1});
+        x_y_with_correction.push_back({ disp, accuracy2});
+
+        if (disp < 2)
+            disp += step0_2;
+        else
+            disp += step2_;
+        cout << disp << "    " << accuracy2 << endl;
+    }
+
+    std::ofstream out1;
+    std::ofstream out2;
+    out1.open(file_name1);
+    out2.open(file_name2);
+    if (out1.is_open() && out2.is_open())
+    {
+        for (auto& coord : x_y_without_correction)
+            out1 << coord.first << "        " << coord.second << std::endl;
+        for (auto& coord : x_y_with_correction)
+            out2 << coord.first << "        " << coord.second << std::endl;
+    }
+
+    out1.close();
+    out2.close();
+
+
+    // 1. Формируем команду для запуска Python скрипта
+    std::string command = "py -3 accuracy.py";
+
+    // 2. Запускаем Python скрипт
+    system(command.c_str());
+
 }
 
 
@@ -207,30 +281,32 @@ int main()
     //cout << res;
 
 
+    
+
+
+    
+   
+
     Q_Sim q("0101");
-
-
     
-    // БЕЗ КОРРЕКЦИИ ОШИБКИ
-    //q.QFT_Adder(0, 2, 2, 0.5);
+    bool correction = 1;
+    int n = 20000;
+    double disp = 10;
+    measurement_res_to_file(q, "results.txt", n, correction, disp);
+
+    /*double min_disp = 50;
+    double max_disp = 100;
+    double step = 1;
+    int count = 1000;
+    RMSE_graph(q, "coord.txt", "coord_correction.txt", min_disp, max_disp, step, count);*/
 
 
+    /*double min_disp = 0;
+    double max_disp = 10;
+    double step0_2 = 0.1;
+    double step2_ = 0.5;
+    int count = 1000;
+    accuracy_graph(q, "accuracy1.txt", "accuracy2.txt", min_disp, max_disp, step0_2, step2_, count);*/
 
-
-    
-
-
-    // С коррекцией ошибки
-
-    /*q.QFT_Adder_with_correction(0, 2, 2, 0.1);
-
-
-    measurement_res_to_file(q, "results.txt", 20000);*/
-    RMSE_graph(q, "coord.txt", "coord_correction.txt", 10, 0.5, 1000);
-
-    /*vector<vector<complex<double>>> fjiaooh;
-    fjiaooh.push_back(q.get_vector_state());
-
-    cout << calculateRMSE(q.get_vector_state(), fjiaooh);*/
     return 0;
 }

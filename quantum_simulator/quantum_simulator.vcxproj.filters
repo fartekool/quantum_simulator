@@ -40,5 +40,7 @@
     <Text Include="results.txt" />
     <Text Include="coord.txt" />
     <Text Include="coord_correction.txt" />
+    <Text Include="accuracy1.txt" />
+    <Text Include="accuracy2.txt" />
   </ItemGroup>
 </Project>

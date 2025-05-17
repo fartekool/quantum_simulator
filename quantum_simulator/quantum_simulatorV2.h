@@ -5,6 +5,7 @@
 #include <random>
 #include <bitset>
 #include <algorithm>
+#include <omp.h>
 
 using namespace std;
 
@@ -86,6 +87,15 @@ class Q_Sim
     }
 public:
 
+    void PrintMean() {
+        for (size_t i = 0; i < vector_state_.size(); ++i) {
+            if (vector_state_[i] != complex<double>(0, 0)) {
+                cout << vector_state_[i] << " " << bitset<50>(i).to_string().substr(50 - count_of_qubits) << endl;
+            }
+        }
+        cout << "\n";
+    }
+
     Q_Sim() : count_of_qubits(1)
     {
         vector_state_.push_back(complex<double>(1, 0));
@@ -161,7 +171,7 @@ public:
 
         int size = static_cast<int>(vector_state_.size());
         vector<complex<double>> result(size);
-
+#pragma omp parallel for
         for (int i = 0; i < size; ++i) {
             // Проверяем, установлен ли управляющий кубит в |1⟩
             if ((i >> controlQubit) & 1) {
@@ -200,7 +210,7 @@ public:
 
         int size = static_cast<int>(vector_state_.size());
         vector<complex<double>> result(size);
-
+#pragma omp parallel for
         for (int i = 0; i < size; ++i) {
             // Проверяем, установлен ли управляющий кубит в |1⟩
             if (((i >> controlQubit1) & 1) && ((i >> controlQubit2) & 1)) {
@@ -288,7 +298,6 @@ public:
         random_device rd;
         mt19937 gen(rd());
         discrete_distribution<> dist(probabilities.begin(), probabilities.end());
-
         for (int i = 0; i < n; ++i) {
             measurement_counts[dist(gen)]++;
         }
@@ -633,6 +642,7 @@ public:
             phase = makeError(phase, error);
         }
         int size = static_cast<int>(vector_state_.size());
+#pragma omp parallel for
         for (int i = 0; i < size; ++i) {
             if ((i >> controlQubit) & 1)
             {
@@ -698,7 +708,7 @@ public:
                 CPhase(a_start + (n - 1 - j), b_start + (n - 1 - i), phase, error);
             }
         }
-    
+
         IQFT_Range(b_start, b_start + n, error);
 
     }

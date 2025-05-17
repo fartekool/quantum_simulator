@@ -137,6 +137,8 @@
     <ClInclude Include="q_error.h" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="accuracy1.txt" />
+    <Text Include="accuracy2.txt" />
     <Text Include="coord.txt" />
     <Text Include="coord_correction.txt" />
     <Text Include="results.txt" />
