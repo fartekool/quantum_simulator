@@ -599,8 +599,10 @@ public:
         ReverseQubitOrder(b_start, n);
         QFT_Range(b_start, b_start + n, error);
 
-        for (int i = 0; i < n; ++i) {
-            for (int j = i; j < n; ++j) {
+        for (int i = 0; i < n; ++i)
+        {
+            for (int j = i; j < n; ++j)
+            {
                 double phase = Pi / (1 << (j - i));
 
                 CPhase(a_start + (n - 1 - j), b_start + (n - 1 - i), phase, error);
@@ -613,27 +615,48 @@ public:
     void QFT_Adder_with_correction(int a_start, int b_start, int n, double error = 0) // only for 4-qubit system (hardcode)
     {
 
-        Q_Sim a = Get_system_for_correction(*this, 3);
-
-        copy_qubit(a, 0, 4, 8);
-        copy_qubit(a, 1, 5, 9);
-        copy_qubit(a, 2, 6, 10);
-        copy_qubit(a, 3, 7, 11);
+        Q_Sim a = Get_system_for_correction(*this, 8);
+        /*copy_qubit(a, 0, 4, 8);
+        copy_qubit(a, 1, 5, 9);*/
+        copy_qubit(a, 2, 4, 6);
+        copy_qubit(a, 3, 5, 7);
 
         a.QFT_Adder(0, 2, 2, error);
-        a.QFT_Adder(4, 6, 2, error);
-        a.QFT_Adder(8, 10, 2, error);
+        a.QFT_Adder(0, 4, 2, error);
+        a.QFT_Adder(0, 6, 2, error);
 
 
-        qubit_flip_correction(a, 0, 4, 8);
-        qubit_flip_correction(a, 1, 5, 9);
-        qubit_flip_correction(a, 2, 6, 10);
-        qubit_flip_correction(a, 3, 7, 11);
+        /*qubit_flip_correction(a, 0, 4, 8);
+        qubit_flip_correction(a, 1, 5, 9);*/
+        qubit_flip_correction(a, 2, 4, 6);
+        qubit_flip_correction(a, 3, 5, 7);
 
 
 
         Q_Sim b = Get_system_for_first_n_qubits(a, 4);
         this->vector_state_ = b.get_vector_state();
+
+
+        /*Q_Sim a = Get_system_for_correction(*this, 20);
+        copy_qubit_and_sign(a, 2, 4, 6, 8, 10, 12, 14, 16, 18);
+        copy_qubit_and_sign(a, 3, 5, 7, 9, 11, 13, 15, 17, 19);
+
+
+        a.QFT_Adder(0, 2, 2, error);
+        a.QFT_Adder(0, 4, 2, error);
+        a.QFT_Adder(0, 6, 2, error);
+        a.QFT_Adder(0, 8, 2, error);
+        a.QFT_Adder(0, 10, 2, error);
+        a.QFT_Adder(0, 12, 2, error);
+        a.QFT_Adder(0, 14, 2, error);
+        a.QFT_Adder(0, 16, 2, error);
+        a.QFT_Adder(0, 18, 2, error);
+
+        shor_correction(a, 2, 4, 6, 8, 10, 12, 14, 16, 18);
+        shor_correction(a, 3, 5, 7, 9, 11, 13, 15, 17, 19);
+
+        Q_Sim b = Get_system_for_first_n_qubits(a, 4);
+        this->vector_state_ = b.get_vector_state();*/
     }
 
     void CPhase(int controlQubit, int targetQubit, double phase, double error = 0)
@@ -793,14 +816,14 @@ public:
 
         q.Toffoli(ancilla6, ancilla3, qubit);
     }
-    Q_Sim Get_system_for_correction(Q_Sim& q, int repetition)
+    Q_Sim Get_system_for_correction(Q_Sim& q, int n)
     {
 
 
 
         vector<complex<double>> res_vector = q.get_vector_state();
         vector<complex<double>> zero_qubit = { 1, 0 };
-        for (int i = 0; i < q.get_count_of_qubits() * (repetition - 1); ++i)
+        for (int i = 0; i <  n - q.get_count_of_qubits(); ++i)
         {
             res_vector = zero_qubit && res_vector;
         }

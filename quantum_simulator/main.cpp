@@ -289,24 +289,24 @@ int main()
 
     Q_Sim q("0101");
     
-    bool correction = 1;
+    /*bool correction = 1;
     int n = 20000;
-    double disp = 10;
-    measurement_res_to_file(q, "results.txt", n, correction, disp);
+    double disp = 1;
+    measurement_res_to_file(q, "results.txt", n, correction, disp);*/
 
-    /*double min_disp = 50;
-    double max_disp = 100;
-    double step = 1;
+    /*double min_disp = 0;
+    double max_disp = 10;
+    double step = 0.1;
     int count = 1000;
     RMSE_graph(q, "coord.txt", "coord_correction.txt", min_disp, max_disp, step, count);*/
 
 
-    /*double min_disp = 0;
+    double min_disp = 0;
     double max_disp = 10;
     double step0_2 = 0.1;
     double step2_ = 0.5;
-    int count = 1000;
-    accuracy_graph(q, "accuracy1.txt", "accuracy2.txt", min_disp, max_disp, step0_2, step2_, count);*/
+    int count = 10000;
+    accuracy_graph(q, "accuracy1.txt", "accuracy2.txt", min_disp, max_disp, step0_2, step2_, count);
 
     return 0;
 }
