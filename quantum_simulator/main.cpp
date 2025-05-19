@@ -39,18 +39,25 @@ vector<vector<complex<double>>> Create_vector_noise(Q_Sim& ideal, double disp,in
 
 
 
-void RMSE_res_to_file(Q_Sim& ideal, string file_name, double min_disp, double max_disp, double step, int count, bool correction)
+void RMSE_res_to_file(Q_Sim& ideal, string file_name, double min_disp, double max_disp, double step0_Pi, double stepPi_, int count, bool correction)
 {   
     Q_Sim ideal_sum(ideal.get_vector_state());
     ideal_sum.QFT_Adder(0, 2, 2);
 
     vector<pair<double,double>> x_y;
-    for(double disp=min_disp;disp <= max_disp;disp += step){
+    for(double disp=min_disp;disp <= max_disp;)
+    {
         double RMSE_calculate =0;
         x_y.push_back({disp,calculateRMSE(ideal_sum.get_vector_state(), Create_vector_noise(ideal, disp, count, correction))});
         cout << disp << endl;
-    }
 
+        if (disp < Pi)
+            disp += step0_Pi;
+        else
+            disp += stepPi_;
+
+    }
+    
     std::ofstream out;
     out.open(file_name);
     if (out.is_open())
@@ -75,7 +82,7 @@ void measurement_res_to_file(Q_Sim& q, string file_name, int n, bool correction,
         else
             a.QFT_Adder_with_correction(0, 2, 2, disp);
         res1[a.To_Measure()]++;
-        cout << i << ' ';
+        //cout << i << ' ';
     }
     
 
@@ -85,6 +92,9 @@ void measurement_res_to_file(Q_Sim& q, string file_name, int n, bool correction,
     out.open(file_name);
     if (out.is_open())
     {   
+        out << n << endl;
+        out << correction << endl;
+        out << disp << endl;
         for (auto& i : res1)
             out << i << std::endl;
     }
@@ -99,10 +109,10 @@ void measurement_res_to_file(Q_Sim& q, string file_name, int n, bool correction,
 
 }
 
-void RMSE_graph(Q_Sim& q, string file_name1, string file_name2, double min_disp,double max_disp, double step, int count)
+void RMSE_graph(Q_Sim& q, string file_name1, string file_name2, double min_disp,double max_disp, double step0_Pi, double stepPi_, int count)
 {
-    RMSE_res_to_file(q, file_name1, min_disp, max_disp, step, count, 0);
-    RMSE_res_to_file(q, file_name2, min_disp, max_disp, step, count, 1);
+    RMSE_res_to_file(q, file_name1, min_disp, max_disp, step0_Pi, stepPi_, count, 0);
+    RMSE_res_to_file(q, file_name2, min_disp, max_disp, step0_Pi, stepPi_, count, 1);
 
     std::string command = "py -3 RMSE.py";
 
@@ -110,7 +120,7 @@ void RMSE_graph(Q_Sim& q, string file_name1, string file_name2, double min_disp,
 }
 
 
-void accuracy_graph(Q_Sim& q, string file_name1, string file_name2, double min_disp, double max_disp, double step0_2, double step2_, int count)
+void accuracy_graph(Q_Sim& q, string file_name1, string file_name2, double min_disp, double max_disp, double step0_Pi, double stepPi_, int count)
 {
     vector<pair<double, double>> x_y_with_correction;
     vector<pair<double, double>> x_y_without_correction;
@@ -140,10 +150,10 @@ void accuracy_graph(Q_Sim& q, string file_name1, string file_name2, double min_d
         x_y_without_correction.push_back({ disp, accuracy1});
         x_y_with_correction.push_back({ disp, accuracy2});
 
-        if (disp < 2)
-            disp += step0_2;
+        if (disp < Pi)
+            disp += step0_Pi;
         else
-            disp += step2_;
+            disp += stepPi_;
         cout << disp << "    " << accuracy2 << endl;
     }
 
@@ -294,19 +304,20 @@ int main()
     double disp = 1;
     measurement_res_to_file(q, "results.txt", n, correction, disp);*/
 
-    /*double min_disp = 0;
-    double max_disp = 10;
-    double step = 0.1;
-    int count = 1000;
-    RMSE_graph(q, "coord.txt", "coord_correction.txt", min_disp, max_disp, step, count);*/
-
-
     double min_disp = 0;
     double max_disp = 10;
-    double step0_2 = 0.1;
-    double step2_ = 0.5;
-    int count = 10000;
-    accuracy_graph(q, "accuracy1.txt", "accuracy2.txt", min_disp, max_disp, step0_2, step2_, count);
+    double step0_Pi = 0.5;
+    double stepPi_ = 1;
+    int count = 20000;
+    RMSE_graph(q, "coord.txt", "coord_correction.txt", min_disp, max_disp, step0_Pi, stepPi_, count);
+
+
+    /*double min_disp = 0;
+    double max_disp = 10;
+    double step0_Pi = 0.01;
+    double stepPi_ = 0.02;
+    int count = 20000;
+    accuracy_graph(q, "accuracy1.txt", "accuracy2.txt", min_disp, max_disp, step0_Pi, stepPi_, count);*/
 
     return 0;
 }
