@@ -226,7 +226,7 @@ public:
     friend ostream& operator<<(ostream& os, const Q_Sim& q)
     {
         for (const complex<double>& a : q.vector_state_)
-        {
+        {   
             if (a.imag() == 0)
                 os << a.real() << endl;
             else
@@ -564,7 +564,8 @@ public:
         }
     }
 
-    void QFT_Range(int start, int n, double error = 0) {
+    void QFT_Range(int start, int n, double error = 0) 
+    {
         for (int i = n - 1; i >= start; --i) {
             H(i);
             for (int j = i - 1; j >= start; --j) {
@@ -595,8 +596,8 @@ public:
 
     void QFT_Adder(int a_start, int b_start, int n, double error = 0)
     {
-        ReverseQubitOrder(a_start, n);
-        ReverseQubitOrder(b_start, n);
+        /*ReverseQubitOrder(a_start, n);
+        ReverseQubitOrder(b_start, n);*/
         QFT_Range(b_start, b_start + n, error);
 
         for (int i = 0; i < n; ++i)

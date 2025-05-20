@@ -213,52 +213,6 @@ int main()
     //cout << q.get_system_state();
 
 
-    /*Q_Sim q("000");
-
-    q.X(0);
-
-    q.QFT_Alex(0, 2);
-
-
-    cout << q << endl;*/
-
-
-    //Q_Sim a("011001");
-
-
-    //a.QFT_Adder(0, 3, 3);
-    ////a.SWAP(0, 1);
-    //a.update_vector();
-    //cout << a;
-    
-    //cout << makeError(1, 0.1);
-
-    //Q_Sim q(vector<complex<double>>{0.5, 0.5, 0.5, 0.5});
-    //q.H(0);
-    //q.Ry(1, Pi / 5); // makeError(Pi / 5, 0.01)
-    /*cout << q;*/
-    //Q_Sim q("001");
-    
-    /*vector<int> res = q.Measure(10000);
-
-    for (auto& i : res)
-        cout << i << " ";*/
-
-
-    //measurement_res_to_file(q, "results.txt", 10000);
-
-    /*Q_Sim q(vector<complex<double>>{0.8, 0.6});
-    Q_Sim a = Get_system_for_correction(q, 3); 
-    
-    Q_Sim b = Get_system_for_first_n_qubits(a, 1);
-
-    cout << b;*/
-
-
-
-
-
-
 
 
 
@@ -299,17 +253,59 @@ int main()
 
     Q_Sim q("0101");
     
+
+    //q.QFT_Adder(0, 2, 2);
+    
+
+    
+    cout << "System |0101>:\n";
+    cout << q << endl << endl;
+
+
+
+    q.QFT_Range(2, 4);
+    cout << "System after q.QFT_Range(2, 4):\n";
+    cout << q << endl << endl;
+
+
+
+    q.CPhase(1, 3, Pi);
+    cout << "System after q.CPhase(1, 3, Pi):\n";
+    cout << q << endl << endl;
+
+
+
+
+    q.CPhase(0, 3, Pi / 2);
+    cout << "System after q.CPhase(0, 3, Pi / 2):\n";
+    cout << q << endl << endl;
+
+
+
+
+    q.CPhase(0, 2, Pi);
+    cout << "System after q.CPhase(0, 2, Pi):\n";
+    cout << q << endl << endl;
+
+
+
+    q.IQFT_Range(2, 4);
+    cout << "System after q.IQFT_Range(2, 4):\n";
+    cout << q << endl << endl;
     /*bool correction = 1;
     int n = 20000;
     double disp = 1;
     measurement_res_to_file(q, "results.txt", n, correction, disp);*/
 
-    double min_disp = 0;
+
+
+    /*double min_disp = 0;
     double max_disp = 10;
-    double step0_Pi = 0.5;
-    double stepPi_ = 1;
+    double step0_Pi = 0.01;
+    double stepPi_ = 0.02;
     int count = 20000;
-    RMSE_graph(q, "coord.txt", "coord_correction.txt", min_disp, max_disp, step0_Pi, stepPi_, count);
+    RMSE_graph(q, "coord.txt", "coord_correction.txt", min_disp, max_disp, step0_Pi, stepPi_, count);*/
+
 
 
     /*double min_disp = 0;

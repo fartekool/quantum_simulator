@@ -9,12 +9,12 @@ C:\Users\levon\Desktop\qsim\quantum_simulator\quantum_simulator\quantum_simulato
 C:\Users\levon\Desktop\qsim\quantum_simulator\quantum_simulator\quantum_simulatorV2.h(545,27): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
 C:\Users\levon\Desktop\qsim\quantum_simulator\quantum_simulator\quantum_simulatorV2.h(545,24): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
 C:\Users\levon\Desktop\qsim\quantum_simulator\quantum_simulator\quantum_simulatorV2.h(547,15): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\levon\Desktop\qsim\quantum_simulator\quantum_simulator\quantum_simulatorV2.h(839,40): warning C4334: '<<': result of 32-bit shift implicitly converted to 64 bits (was 64-bit shift intended?)
-C:\Users\levon\Desktop\qsim\quantum_simulator\quantum_simulator\quantum_simulatorV2.h(1017,11): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\levon\Desktop\qsim\quantum_simulator\quantum_simulator\quantum_simulatorV2.h(840,40): warning C4334: '<<': result of 32-bit shift implicitly converted to 64 bits (was 64-bit shift intended?)
 C:\Users\levon\Desktop\qsim\quantum_simulator\quantum_simulator\quantum_simulatorV2.h(1018,11): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\levon\Desktop\qsim\quantum_simulator\quantum_simulator\quantum_simulatorV2.h(1019,11): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
   Generating code
-  4 of 493 functions ( 0.8%) were compiled, the rest were copied from previous compilation.
-    2 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+  1 of 351 functions ( 0.3%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    1 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   quantum_simulator.vcxproj -> C:\Users\levon\Desktop\qsim\quantum_simulator\x64\Release\quantum_simulator.exe
